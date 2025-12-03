@@ -123,7 +123,7 @@ public class RatesListView extends VerticalLayout {
         HorizontalLayout rowToolbarLayout = new HorizontalLayout();
 
         Button viewButton = new Button();
-        viewButton.setTooltipText("View Employee Rates");
+        viewButton.setTooltipText("View Employee Rate");
         viewButton.setIcon(LineAwesomeIcon.SEARCH_SOLID.create());
         viewButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         viewButton.addClickListener(buttonClickEvent -> viewButton.getUI().ifPresent(ui -> {
@@ -134,7 +134,7 @@ public class RatesListView extends VerticalLayout {
         }));
 
         Button editButton = new Button();
-        editButton.setTooltipText("Edit Employee Rates");
+        editButton.setTooltipText("Edit Employee Rate");
         editButton.setIcon(LineAwesomeIcon.PENCIL_ALT_SOLID.create());
         editButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         editButton.addClickListener(buttonClickEvent -> editButton.getUI().ifPresent(ui -> {
@@ -146,7 +146,7 @@ public class RatesListView extends VerticalLayout {
 
         // Show the delete button if the role of the logged-in user is ROLE_ADMIN.
         Button deleteButton = new Button();
-        deleteButton.setTooltipText("Delete Rate");
+        deleteButton.setTooltipText("Delete Employee Rate");
         deleteButton.setIcon(LineAwesomeIcon.TRASH_ALT_SOLID.create());
         deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         deleteButton.addClickListener(buttonClickEvent -> {

@@ -22,9 +22,6 @@ public class Payroll extends BaseEntity {
     @Column(name = "cut_off_to_date", nullable = false)
     private LocalDate cutOffToDate;
 
-    @Column(name = "payroll_frequency", length = 25, nullable = false)
-    private String payrollFrequency;
-
     @Column(name = "basic_pay_amount", nullable = false)
     private BigDecimal basicPayAmount;
 
@@ -37,8 +34,8 @@ public class Payroll extends BaseEntity {
     @Column(name = "late_or_undertime_deduction_amount", nullable = false)
     private BigDecimal lateOrUndertimeDeductionAmount;
 
-    @Column(name = "rest_day_overtime_pay_amount", nullable = false)
-    private BigDecimal restDayOvertimePayAmount;
+    @Column(name = "rest_day_pay_amount", nullable = false)
+    private BigDecimal restDayPayAmount;
 
     @Column(name = "night_differential_pay_amount", nullable = false)
     private BigDecimal nightDifferentialPayAmount;
@@ -51,6 +48,9 @@ public class Payroll extends BaseEntity {
 
     @Column(name = "special_holiday_pay_amount", nullable = false)
     private BigDecimal specialHolidayPayAmount;
+
+    @Column(name = "special_non_working_holiday_pay_amount", nullable = false)
+    private BigDecimal specialNonWorkingHolidayPayAmount;
 
     @Column(name = "adjustment_pay_amount", nullable = false)
     private BigDecimal adjustmentPayAmount;
@@ -76,6 +76,9 @@ public class Payroll extends BaseEntity {
     @Column(name = "other_deduction_amount", nullable = false)
     private BigDecimal otherDeductionAmount;
 
+    @Column(name = "total_deduction_amount", nullable = false)
+    private BigDecimal totalDeductionAmount;
+
     public EmployeeProfile getEmployee() {
         return employeeProfile;
     }
@@ -98,14 +101,6 @@ public class Payroll extends BaseEntity {
 
     public void setCutOffToDate(LocalDate cutOffToDate) {
         this.cutOffToDate = cutOffToDate;
-    }
-
-    public String getPayrollFrequency() {
-        return payrollFrequency;
-    }
-
-    public void setPayrollFrequency(String payrollFrequency) {
-        this.payrollFrequency = payrollFrequency;
     }
 
     public BigDecimal getBasicPayAmount() {
@@ -140,12 +135,12 @@ public class Payroll extends BaseEntity {
         this.lateOrUndertimeDeductionAmount = lateOrUndertimeDeductionAmount;
     }
 
-    public BigDecimal getRestDayOvertimePayAmount() {
-        return restDayOvertimePayAmount;
+    public BigDecimal getRestDayPayAmount() {
+        return restDayPayAmount;
     }
 
-    public void setRestDayOvertimePayAmount(BigDecimal restDayOvertimePayAmount) {
-        this.restDayOvertimePayAmount = restDayOvertimePayAmount;
+    public void setRestDayPayAmount(BigDecimal restDayPayAmount) {
+        this.restDayPayAmount = restDayPayAmount;
     }
 
     public BigDecimal getNightDifferentialPayAmount() {
@@ -178,6 +173,14 @@ public class Payroll extends BaseEntity {
 
     public void setSpecialHolidayPayAmount(BigDecimal specialHolidayPayAmount) {
         this.specialHolidayPayAmount = specialHolidayPayAmount;
+    }
+
+    public BigDecimal getSpecialNonWorkingHolidayPayAmount() {
+        return specialNonWorkingHolidayPayAmount;
+    }
+
+    public void setSpecialNonWorkingHolidayPayAmount(BigDecimal specialNonWorkingHolidayPayAmount) {
+        this.specialNonWorkingHolidayPayAmount = specialNonWorkingHolidayPayAmount;
     }
 
     public BigDecimal getAdjustmentPayAmount() {
@@ -242,5 +245,13 @@ public class Payroll extends BaseEntity {
 
     public void setOtherDeductionAmount(BigDecimal otherDeductionAmount) {
         this.otherDeductionAmount = otherDeductionAmount;
+    }
+
+    public BigDecimal getTotalDeductionAmount() {
+        return totalDeductionAmount;
+    }
+
+    public void setTotalDeductionAmount(BigDecimal totalDeductionAmount) {
+        this.totalDeductionAmount = totalDeductionAmount;
     }
 }

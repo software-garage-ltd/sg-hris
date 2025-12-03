@@ -10,16 +10,16 @@ public class PayrollDTO extends BaseDTO {
     private EmployeeProfileDTO employeeProfileDTO;
     private LocalDate cutOffFromDate;
     private LocalDate cutOffToDate;
-    private String payrollFrequency;
     private BigDecimal basicPayAmount;
     private BigDecimal allowancePayAmount;
     private BigDecimal absentDeductionAmount;
     private BigDecimal lateOrUndertimeDeductionAmount;
-    private BigDecimal restDayOvertimePayAmount;
+    private BigDecimal restDayPayAmount;
     private BigDecimal nightDifferentialPayAmount;
     private BigDecimal leavePayAmount;
     private BigDecimal regularHolidayPayAmount;
     private BigDecimal specialHolidayPayAmount;
+    private BigDecimal specialNonWorkingHolidayPayAmount;
     private BigDecimal adjustmentPayAmount;
     private BigDecimal totalGrossPayAmount;
     private BigDecimal sssDeductionAmount;
@@ -28,6 +28,7 @@ public class PayrollDTO extends BaseDTO {
     private BigDecimal withholdingTaxDeductionAmount;
     private BigDecimal totalLoanDeductionAmount;
     private BigDecimal otherDeductionAmount;
+    private BigDecimal totalDeductionAmount;
 
     public EmployeeProfileDTO getEmployeeDTO() {
         return employeeProfileDTO;
@@ -43,14 +44,6 @@ public class PayrollDTO extends BaseDTO {
 
     public void setCutOffFromDate(LocalDate cutOffFromDate) {
         this.cutOffFromDate = cutOffFromDate;
-    }
-
-    public String getPayrollFrequency() {
-        return payrollFrequency;
-    }
-
-    public void setPayrollFrequency(String payrollFrequency) {
-        this.payrollFrequency = payrollFrequency;
     }
 
     public LocalDate getCutOffToDate() {
@@ -93,12 +86,12 @@ public class PayrollDTO extends BaseDTO {
         this.lateOrUndertimeDeductionAmount = lateOrUndertimeDeductionAmount;
     }
 
-    public BigDecimal getRestDayOvertimePayAmount() {
-        return restDayOvertimePayAmount;
+    public BigDecimal getRestDayPayAmount() {
+        return restDayPayAmount;
     }
 
-    public void setRestDayOvertimePayAmount(BigDecimal restDayOvertimePayAmount) {
-        this.restDayOvertimePayAmount = restDayOvertimePayAmount;
+    public void setRestDayPayAmount(BigDecimal restDayPayAmount) {
+        this.restDayPayAmount = restDayPayAmount;
     }
 
     public BigDecimal getNightDifferentialPayAmount() {
@@ -131,6 +124,14 @@ public class PayrollDTO extends BaseDTO {
 
     public void setSpecialHolidayPayAmount(BigDecimal specialHolidayPayAmount) {
         this.specialHolidayPayAmount = specialHolidayPayAmount;
+    }
+
+    public BigDecimal getSpecialNonWorkingHolidayPayAmount() {
+        return specialNonWorkingHolidayPayAmount;
+    }
+
+    public void setSpecialNonWorkingHolidayPayAmount(BigDecimal specialNonWorkingHolidayPayAmount) {
+        this.specialNonWorkingHolidayPayAmount = specialNonWorkingHolidayPayAmount;
     }
 
     public BigDecimal getAdjustmentPayAmount() {
@@ -195,5 +196,13 @@ public class PayrollDTO extends BaseDTO {
 
     public void setOtherDeductionAmount(BigDecimal otherDeductionAmount) {
         this.otherDeductionAmount = otherDeductionAmount;
+    }
+
+    public BigDecimal getTotalDeductionAmount() {
+        return totalDeductionAmount;
+    }
+
+    public void setTotalDeductionAmount(BigDecimal totalDeductionAmount) {
+        this.totalDeductionAmount = totalDeductionAmount;
     }
 }

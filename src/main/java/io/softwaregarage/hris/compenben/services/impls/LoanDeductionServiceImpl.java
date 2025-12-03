@@ -3,6 +3,7 @@ package io.softwaregarage.hris.compenben.services.impls;
 import io.softwaregarage.hris.compenben.dtos.LoanDeductionDTO;
 import io.softwaregarage.hris.compenben.entities.LoanDeduction;
 import io.softwaregarage.hris.compenben.repositories.LoanDeductionRepository;
+import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
 import io.softwaregarage.hris.profile.repositories.EmployeeProfileRepository;
 import io.softwaregarage.hris.compenben.services.LoanDeductionService;
 import io.softwaregarage.hris.profile.services.impls.EmployeeProfileServiceImpl;
@@ -25,11 +26,14 @@ public class LoanDeductionServiceImpl implements LoanDeductionService {
 
     private final LoanDeductionRepository loanDeductionRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final EmployeeProfileService employeeProfileService;
 
     public LoanDeductionServiceImpl(LoanDeductionRepository loanDeductionRepository,
-                                    EmployeeProfileRepository employeeProfileRepository) {
+                                    EmployeeProfileRepository employeeProfileRepository,
+                                    EmployeeProfileService employeeProfileService) {
         this.loanDeductionRepository = loanDeductionRepository;
         this.employeeProfileRepository = employeeProfileRepository;
+        this.employeeProfileService = employeeProfileService;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class LoanDeductionServiceImpl implements LoanDeductionService {
         loanDeductionDTO.setLoanStartDate(loanDeduction.getLoanStartDate());
         loanDeductionDTO.setLoanEndDate(loanDeduction.getLoanEndDate());
         loanDeductionDTO.setMonthlyDeduction(loanDeduction.getMonthlyDeduction());
-        loanDeductionDTO.setEmployeeDTO(new EmployeeProfileServiceImpl(employeeProfileRepository).getById(loanDeduction.getEmployee().getId()));
+        loanDeductionDTO.setEmployeeDTO(employeeProfileService.getById(loanDeduction.getEmployee().getId()));
         loanDeductionDTO.setCreatedBy(loanDeduction.getCreatedBy());
         loanDeductionDTO.setDateAndTimeCreated(loanDeduction.getDateAndTimeCreated());
         loanDeductionDTO.setUpdatedBy(loanDeduction.getUpdatedBy());
@@ -107,8 +111,6 @@ public class LoanDeductionServiceImpl implements LoanDeductionService {
         List<LoanDeductionDTO> loanDeductionDTOList = new ArrayList<>();
 
         if (!loanDeductionList.isEmpty()) {
-            EmployeeProfileService employeeProfileService = new EmployeeProfileServiceImpl(employeeProfileRepository);
-
             for (LoanDeduction loanDeduction : loanDeductionList) {
                 LoanDeductionDTO loanDeductionDTO = new LoanDeductionDTO();
 
@@ -136,15 +138,55 @@ public class LoanDeductionServiceImpl implements LoanDeductionService {
 
     @Override
     public List<LoanDeductionDTO> findByParameter(String param) {
-        logger.info("Retrieving employee's loan deductions with search parameter '%".concat(param).concat("%' from the database."));
+        logger.info("Retrieving employee's loan deductions with search parameter '%"
+                .concat(param).concat("%' from the database."));
 
         List<LoanDeduction> loanDeductionList = loanDeductionRepository.findByStringParameter(param);
         List<LoanDeductionDTO> loanDeductionDTOList = new ArrayList<>();
 
         if (!loanDeductionList.isEmpty()) {
-            logger.info("Employee's loan deductions with parameter '%".concat(param).concat("%' has successfully retrieved."));
+            logger.info("Employee's loan deductions with parameter '%"
+                    .concat(param).concat("%' has successfully retrieved."));
 
-            EmployeeProfileService employeeProfileService = new EmployeeProfileServiceImpl(employeeProfileRepository);
+            for (LoanDeduction loanDeduction : loanDeductionList) {
+                LoanDeductionDTO loanDeductionDTO = new LoanDeductionDTO();
+
+                loanDeductionDTO.setId(loanDeduction.getId());
+                loanDeductionDTO.setLoanType(loanDeduction.getLoanType());
+                loanDeductionDTO.setLoanDescription(loanDeduction.getLoanDescription());
+                loanDeductionDTO.setLoanAmount(loanDeduction.getLoanAmount());
+                loanDeductionDTO.setLoanStartDate(loanDeduction.getLoanStartDate());
+                loanDeductionDTO.setLoanEndDate(loanDeduction.getLoanEndDate());
+                loanDeductionDTO.setMonthlyDeduction(loanDeduction.getMonthlyDeduction());
+                loanDeductionDTO.setEmployeeDTO(employeeProfileService.getById(loanDeduction.getEmployee().getId()));
+                loanDeductionDTO.setCreatedBy(loanDeduction.getCreatedBy());
+                loanDeductionDTO.setDateAndTimeCreated(loanDeduction.getDateAndTimeCreated());
+                loanDeductionDTO.setUpdatedBy(loanDeduction.getUpdatedBy());
+                loanDeductionDTO.setDateAndTimeUpdated(loanDeduction.getDateAndTimeUpdated());
+
+                loanDeductionDTOList.add(loanDeductionDTO);
+            }
+
+            logger.info(String.valueOf(loanDeductionList.size()).concat(" record(s) found."));
+        }
+
+        return loanDeductionDTOList;
+    }
+
+    @Override
+    public List<LoanDeductionDTO> findByEmployeeProfileDTO(EmployeeProfileDTO employeeProfileDTO) {
+        logger.info("Retrieving employee's loan deductions with employee id "
+                .concat(employeeProfileDTO.getId().toString())
+                .concat(" from the database."));
+
+        List<LoanDeduction> loanDeductionList = loanDeductionRepository
+                .findByEmployeeProfile(employeeProfileRepository.getById(employeeProfileDTO.getId()));
+        List<LoanDeductionDTO> loanDeductionDTOList = new ArrayList<>();
+
+        if (!loanDeductionList.isEmpty()) {
+            logger.info("Employee's loan deductions with employee id "
+                    .concat(employeeProfileDTO.getId().toString())
+                    .concat(" has successfully retrieved."));
 
             for (LoanDeduction loanDeduction : loanDeductionList) {
                 LoanDeductionDTO loanDeductionDTO = new LoanDeductionDTO();
