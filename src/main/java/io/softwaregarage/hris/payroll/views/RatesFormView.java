@@ -19,6 +19,8 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import io.softwaregarage.hris.attendance.dtos.EmployeeShiftScheduleDTO;
+import io.softwaregarage.hris.attendance.services.EmployeeShiftScheduleService;
 import io.softwaregarage.hris.payroll.dtos.RatesDTO;
 import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
 import io.softwaregarage.hris.compenben.services.AllowanceService;
@@ -31,6 +33,7 @@ import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -50,6 +53,9 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
     @Resource
     private final AllowanceService allowanceService;
 
+    @Resource
+    private final EmployeeShiftScheduleService employeeShiftScheduleService;
+
     private RatesDTO ratesDTO;
     private UUID parameterId;
     private String loggedInUser;
@@ -67,10 +73,12 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
 
     public RatesFormView(RatesService ratesService,
                          EmployeeProfileService employeeProfileService,
-                         AllowanceService allowanceService) {
+                         AllowanceService allowanceService,
+                         EmployeeShiftScheduleService employeeShiftScheduleService) {
         this.ratesService = ratesService;
         this.employeeProfileService = employeeProfileService;
         this.allowanceService = allowanceService;
+        this.employeeShiftScheduleService = employeeShiftScheduleService;
 
         loggedInUser = Objects.requireNonNull(SecurityUtil.getAuthenticatedUser()).getUsername();
 
@@ -175,11 +183,26 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
         basicRateDecimalField.addValueChangeListener(event -> {
             BigDecimal monthlySalaryRate = event.getValue();
 
+            // Get the number of days of the employee's schedule to work.
+            long noOfDaystoWork = 0;
+            List<EmployeeShiftScheduleDTO> employeeShiftScheduleDTOList = employeeShiftScheduleService
+                    .getEmployeeShiftScheduleByEmployeeDTO(employeeDTOComboBox.getValue());
+            EmployeeShiftScheduleDTO  employeeShiftScheduleDTO = employeeShiftScheduleDTOList.stream()
+                    .filter(shiftSchedule -> shiftSchedule.isActiveShift())
+                    .findFirst()
+                    .get();
+            noOfDaystoWork = employeeShiftScheduleDTO.getShiftScheduledDays().split(", ").length;
+
             // Populate the computed values in each field.
             if (monthlySalaryRate != null) {
-                BigDecimal totalMonthlyAllowance = totalMonthlyAllowanceDecimalField.getValue() != null ? totalMonthlyAllowanceDecimalField.getValue() : new BigDecimal("0.00");
-                BigDecimal totalMonthlySalaryRate = monthlySalaryRate.add(totalMonthlyAllowance);
-                BigDecimal dailySalaryRate = totalMonthlySalaryRate.divide(new BigDecimal("26"), 2, BigDecimal.ROUND_HALF_UP);
+                if (totalMonthlyAllowanceDecimalField.getValue() != null) {
+                    totalMonthlyAllowanceDecimalField.getValue();
+                } else {
+                    totalMonthlyAllowanceDecimalField.setValue(BigDecimal.ZERO);
+                }
+
+                BigDecimal totalMonthlySalaryRate = monthlySalaryRate;
+                BigDecimal dailySalaryRate = totalMonthlySalaryRate.divide(new BigDecimal(noOfDaystoWork == 5 ? "22" : "26"), 2, BigDecimal.ROUND_HALF_UP);
                 BigDecimal hourlySalaryRate = dailySalaryRate.divide(new BigDecimal("8"), 2, BigDecimal.ROUND_HALF_UP);
 
                 dailyRateDecimalField.setValue(dailySalaryRate);

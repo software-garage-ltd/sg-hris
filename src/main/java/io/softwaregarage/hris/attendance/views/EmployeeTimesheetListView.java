@@ -129,7 +129,10 @@ public class EmployeeTimesheetListView extends VerticalLayout {
         endDatePicker = new DatePicker("End date");
         endDatePicker.setRequired(true);
 
-        Anchor downloadTimesheetLink = new Anchor(createCsvDownloadHandler(employeeDTOComboBox.getValue(), startDatePicker.getValue(), endDatePicker.getValue()), "Download Timesheet");
+        Anchor downloadTimesheetLink = new Anchor(createCsvDownloadHandler(employeeDTOComboBox.getValue(),
+                                                            startDatePicker.getValue(),
+                                                            endDatePicker.getValue()),
+                                                            "Download Timesheet");
         downloadTimesheetLink.getStyle().set("margin", "0 0 0 auto");
         downloadTimesheetLink.setEnabled(false);
 
@@ -154,12 +157,17 @@ public class EmployeeTimesheetListView extends VerticalLayout {
 
     public void executeSearchAndUpdateResult(EmployeeProfileDTO employeeProfileDTO, LocalDate startDate, LocalDate endDate) {
         if (employeeProfileDTO != null) {
-            employeeTimesheetDTOList = employeeTimesheetService.findTimesheetByEmployeeAndLogDate(employeeProfileDTO, startDate, endDate);
+            employeeTimesheetDTOList = employeeTimesheetService.findTimesheetByEmployeeAndLogDate(employeeProfileDTO,
+                    startDate, endDate);
         } else {
-            employeeTimesheetDTOList = employeeTimesheetService.findByLogDateRange(startDatePicker.getValue(), endDatePicker.getValue());
+            employeeTimesheetDTOList = employeeTimesheetService.findByLogDateRange(startDatePicker.getValue(),
+                    endDatePicker.getValue());
         }
 
-        this.updateEmployeeTimesheetGrid(employeeTimesheetDTOList);
+        this.updateEmployeeTimesheetGrid(employeeTimesheetDTOList.stream()
+                .filter(timesheet -> timesheet.getStatus().equals("PENDING")
+                        || timesheet.getStatus().equals("REJECTED"))
+                .toList());
     }
 
     private Grid<EmployeeTimesheetDTO> buildTimesheetDTOGrid() {
@@ -197,6 +205,9 @@ public class EmployeeTimesheetListView extends VerticalLayout {
                                                 break;
                                             case "REJECTED":
                                                 theme = String.format("badge error");
+                                                break;
+                                            case "PROCESSED":
+                                                theme = String.format("badge info");
                                                 break;
                                             default:
                                                 theme = String.format("badge contrast");
@@ -278,10 +289,10 @@ public class EmployeeTimesheetListView extends VerticalLayout {
         }));
 
         // Removed the Approve button once the status of the employee's timesheet is approved.
-        if (!"APPROVED".equals(employeeTimesheetDTO.getStatus())) {
-            rowToolbarLayout.add(viewButton, editButton, approveButton, rejectButton);
+        if ("REJECTED".equals(employeeTimesheetDTO.getStatus())) {
+            rowToolbarLayout.add(viewButton, editButton, approveButton);
         } else {
-            rowToolbarLayout.add(viewButton, editButton, rejectButton);
+            rowToolbarLayout.add(viewButton, editButton, approveButton, rejectButton);
         }
 
         rowToolbarLayout.setJustifyContentMode(JustifyContentMode.START);

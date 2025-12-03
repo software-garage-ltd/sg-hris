@@ -2,6 +2,7 @@ package io.softwaregarage.hris.compenben.repositories;
 
 import io.softwaregarage.hris.compenben.entities.LoanDeduction;
 
+import io.softwaregarage.hris.profile.entities.EmployeeProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,10 @@ public interface LoanDeductionRepository extends JpaRepository<LoanDeduction, UU
            OR LOWER(ld.employeeProfile.lastName) LIKE LOWER(CONCAT('%', :param, '%'))
            """)
     List<LoanDeduction> findByStringParameter(@Param("param") String param);
+
+    @Query("""
+           SELECT ld FROM LoanDeduction ld
+           WHERE ld.employeeProfile = :employee
+           """)
+    List<LoanDeduction> findByEmployeeProfile(@Param("employee") EmployeeProfile employeeProfile);
 }

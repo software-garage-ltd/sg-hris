@@ -4,6 +4,7 @@ import io.softwaregarage.hris.compenben.dtos.AllowanceDTO;
 import io.softwaregarage.hris.compenben.dtos.GovernmentContributionsDTO;
 import io.softwaregarage.hris.compenben.entities.GovernmentContributions;
 import io.softwaregarage.hris.compenben.repositories.GovernmentContributionsRepository;
+import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
 import io.softwaregarage.hris.profile.repositories.EmployeeProfileRepository;
 import io.softwaregarage.hris.compenben.services.GovernmentContributionsService;
 import io.softwaregarage.hris.profile.services.impls.EmployeeProfileServiceImpl;
@@ -26,11 +27,14 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
 
     private final GovernmentContributionsRepository governmentContributionsRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final EmployeeProfileService employeeProfileService;
 
     public GovernmentContributionsServiceImpl(GovernmentContributionsRepository governmentContributionsRepository,
-                                              EmployeeProfileRepository employeeProfileRepository) {
+                                              EmployeeProfileRepository employeeProfileRepository,
+                                              EmployeeProfileService employeeProfileService) {
         this.governmentContributionsRepository = governmentContributionsRepository;
         this.employeeProfileRepository = employeeProfileRepository;
+        this.employeeProfileService = employeeProfileService;
     }
 
 
@@ -71,7 +75,7 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
         governmentContributionsDTO.setSssContributionAmount(governmentContributions.getSssContrbutionAmount());
         governmentContributionsDTO.setHdmfContributionAmount(governmentContributions.getHdmfContrbutionAmount());
         governmentContributionsDTO.setPhilhealthContributionAmount(governmentContributions.getPhilhealthContributionAmount());
-        governmentContributionsDTO.setEmployeeDTO(new EmployeeProfileServiceImpl(employeeProfileRepository).getById(governmentContributions.getEmployee().getId()));
+        governmentContributionsDTO.setEmployeeDTO(employeeProfileService.getById(governmentContributions.getEmployee().getId()));
         governmentContributionsDTO.setCreatedBy(governmentContributions.getCreatedBy());
         governmentContributionsDTO.setDateAndTimeCreated(governmentContributions.getDateAndTimeCreated());
         governmentContributionsDTO.setUpdatedBy(governmentContributions.getUpdatedBy());
@@ -103,8 +107,6 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
         List<GovernmentContributionsDTO> governmentContributionsDTOList = new ArrayList<>();
 
         if (!governmentContributionsList.isEmpty()) {
-            EmployeeProfileService employeeProfileService = new EmployeeProfileServiceImpl(employeeProfileRepository);
-
             for (GovernmentContributions governmentContributions : governmentContributionsList) {
                 GovernmentContributionsDTO governmentContributionsDTO = new GovernmentContributionsDTO();
 
@@ -137,8 +139,6 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
         if (!governmentContributionsList.isEmpty()) {
             logger.info("Employee's government contributions with parameter '%".concat(param).concat("%' has successfully retrieved."));
 
-            EmployeeProfileService employeeProfileService = new EmployeeProfileServiceImpl(employeeProfileRepository);
-
             for (GovernmentContributions governmentContributions : governmentContributionsList) {
                 AllowanceDTO allowanceDTO = new AllowanceDTO();
 
@@ -161,5 +161,29 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
         }
 
         return governmentContributionsDTOList;
+    }
+
+    @Override
+    public GovernmentContributionsDTO findByEmployeeProfileDTO(EmployeeProfileDTO employeeProfileDTO) {
+        logger.info("Retrieving employee's government contributions record with employee id "
+                .concat(employeeProfileDTO.getId().toString()));
+
+        GovernmentContributions governmentContributions = governmentContributionsRepository
+                .findByEmployee(employeeProfileRepository.getReferenceById(employeeProfileDTO.getId()));
+        GovernmentContributionsDTO governmentContributionsDTO = new GovernmentContributionsDTO();
+
+        governmentContributionsDTO.setId(governmentContributions.getId());
+        governmentContributionsDTO.setSssContributionAmount(governmentContributions.getSssContrbutionAmount());
+        governmentContributionsDTO.setHdmfContributionAmount(governmentContributions.getHdmfContrbutionAmount());
+        governmentContributionsDTO.setPhilhealthContributionAmount(governmentContributions.getPhilhealthContributionAmount());
+        governmentContributionsDTO.setEmployeeDTO(employeeProfileService.getById(governmentContributions.getEmployee().getId()));
+        governmentContributionsDTO.setCreatedBy(governmentContributions.getCreatedBy());
+        governmentContributionsDTO.setDateAndTimeCreated(governmentContributions.getDateAndTimeCreated());
+        governmentContributionsDTO.setUpdatedBy(governmentContributions.getUpdatedBy());
+        governmentContributionsDTO.setDateAndTimeUpdated(governmentContributions.getDateAndTimeUpdated());
+
+        logger.info("Government contriibutions record with employee id "
+                .concat(employeeProfileDTO.getId().toString()).concat(" is successfully retrieved."));
+        return governmentContributionsDTO;
     }
 }

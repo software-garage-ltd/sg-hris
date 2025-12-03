@@ -1,6 +1,8 @@
 package io.softwaregarage.hris.admin.repositories;
 
 import io.softwaregarage.hris.admin.entities.User;
+import io.softwaregarage.hris.profile.entities.EmployeeProfile;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,12 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.username = :param")
     User findByUsername(@Param("param") String username);
+
+    @Query("""
+           SELECT u FROM User u
+           WHERE u.employeeProfile = :param
+           """)
+    User findByEmployee(@Param("param") EmployeeProfile employeeProfile);
 
     @Query("""
            SELECT u FROM User u
