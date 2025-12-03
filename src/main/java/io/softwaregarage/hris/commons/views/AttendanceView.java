@@ -245,7 +245,9 @@ public class AttendanceView extends VerticalLayout {
         searchButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         searchButton.getStyle().set("display", "block");
         searchButton.addClickListener(event -> {
-            employeeTimesheetDTOList = employeeTimesheetService.findTimesheetByEmployeeAndLogDate(employeeProfileDTO, startDatePicker.getValue(), endDatePicker.getValue());
+            employeeTimesheetDTOList = employeeTimesheetService.findTimesheetByEmployeeAndLogDate(employeeProfileDTO,
+                                                    startDatePicker.getValue(),
+                                                    endDatePicker.getValue());
             employeeTimesheetGrid.setItems(employeeTimesheetDTOList);
         });
 
@@ -255,22 +257,49 @@ public class AttendanceView extends VerticalLayout {
         searchLayout.add(startDatePicker, endDatePicker, searchButton);
 
         employeeTimesheetGrid = new Grid<>(EmployeeTimesheetDTO.class, false);
-        employeeTimesheetGrid.addColumn(employeeTimesheetDTO -> DateTimeFormatter.ofPattern("MMM dd, yyyy").format(employeeTimesheetDTO.getLogDate())).setHeader("Date");
-        employeeTimesheetGrid.addColumn(EmployeeTimesheetDTO::getLogDetail).setHeader("Log Detail");
-        employeeTimesheetGrid.addColumn(employeeTimesheetDTO -> DateTimeFormatter.ofPattern("hh:mm:ss a").format(employeeTimesheetDTO.getLogTime())).setHeader("Time");
-        employeeTimesheetGrid.addColumn(employeeTimesheetDTO -> employeeTimesheetDTO.getShiftScheduleDTO().getShiftSchedule()).setHeader("Shift Schedule");
-        employeeTimesheetGrid.addColumn(employeeTimesheetDTO -> DateTimeFormatter.ofPattern("hh:mm:ss a").format(employeeTimesheetDTO.getShiftScheduleDTO().getShiftStartTime())).setHeader("Shift Start Time");
-        employeeTimesheetGrid.addColumn(employeeTimesheetDTO -> DateTimeFormatter.ofPattern("hh:mm:ss a").format(employeeTimesheetDTO.getShiftScheduleDTO().getShiftEndTime())).setHeader("Shift End Time");
+        employeeTimesheetGrid.addColumn(employeeTimesheetDTO ->
+                        DateTimeFormatter.ofPattern("MMM dd, yyyy").format(employeeTimesheetDTO.getLogDate()))
+                .setHeader("Date");
+        employeeTimesheetGrid.addColumn(EmployeeTimesheetDTO::getLogDetail)
+                .setHeader("Log Detail");
+        employeeTimesheetGrid.addColumn(employeeTimesheetDTO ->
+                        DateTimeFormatter.ofPattern("hh:mm:ss a").format(employeeTimesheetDTO.getLogTime()))
+                .setHeader("Time");
+        employeeTimesheetGrid.addColumn(employeeTimesheetDTO ->
+                        employeeTimesheetDTO.getShiftScheduleDTO().getShiftSchedule())
+                .setHeader("Shift Schedule");
+        employeeTimesheetGrid.addColumn(employeeTimesheetDTO ->
+                        DateTimeFormatter.ofPattern("hh:mm:ss a")
+                                .format(employeeTimesheetDTO.getShiftScheduleDTO().getShiftStartTime()))
+                .setHeader("Shift Start Time");
+        employeeTimesheetGrid.addColumn(employeeTimesheetDTO ->
+                        DateTimeFormatter.ofPattern("hh:mm:ss a")
+                                .format(employeeTimesheetDTO.getShiftScheduleDTO().getShiftEndTime()))
+                .setHeader("Shift End Time");
         employeeTimesheetGrid.addColumn(new ComponentRenderer<>(HorizontalLayout::new, (layout, employeeTimesheetDTO) -> {
-                                            String theme = String.format("badge %s", employeeTimesheetDTO.getStatus().equalsIgnoreCase("PENDING") ? "contrast" : "success");
+                                                String theme;
+                                                String status = employeeTimesheetDTO.getStatus();
+                                                switch (status) {
+                                                    case "APPROVED":
+                                                        theme = String.format("badge success");
+                                                        break;
+                                                    case "REJECTED":
+                                                        theme = String.format("badge error");
+                                                        break;
+                                                    case "PROCESSED":
+                                                        theme = String.format("badge info");
+                                                        break;
+                                                    default:
+                                                        theme = String.format("badge contrast");
+                                                }
 
-                                            Span activeSpan = new Span();
-                                            activeSpan.getElement().setAttribute("theme", theme);
-                                            activeSpan.setText(employeeTimesheetDTO.getStatus());
+                                                Span activeSpan = new Span();
+                                                activeSpan.getElement().setAttribute("theme", theme);
+                                                activeSpan.setText(employeeTimesheetDTO.getStatus());
 
-                                            layout.setJustifyContentMode(JustifyContentMode.CENTER);
-                                            layout.add(activeSpan);
-                                        })).setHeader("Status");
+                                                layout.setJustifyContentMode(JustifyContentMode.CENTER);
+                                                layout.add(activeSpan);
+                                            })).setHeader("Status");
         employeeTimesheetGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
                                                GridVariant.LUMO_COLUMN_BORDERS,
                                                GridVariant.LUMO_WRAP_CELL_CONTENT);

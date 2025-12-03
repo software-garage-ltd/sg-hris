@@ -3,6 +3,7 @@ package io.softwaregarage.hris.admin.services.impls;
 import io.softwaregarage.hris.admin.dtos.UserDTO;
 import io.softwaregarage.hris.admin.entities.User;
 import io.softwaregarage.hris.admin.repositories.UserRepository;
+import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
 import io.softwaregarage.hris.profile.repositories.EmployeeProfileRepository;
 import io.softwaregarage.hris.admin.services.UserService;
 import io.softwaregarage.hris.profile.services.impls.EmployeeProfileServiceImpl;
@@ -197,6 +198,32 @@ public class UserServiceImpl implements UserService {
         userDTO.setDateAndTimeUpdated(user.getDateAndTimeUpdated());
 
         logger.info("User record with username ".concat(username).concat(" is successfully retrieved."));
+
+        return userDTO;
+    }
+
+    @Override
+    public UserDTO getByEmployeeProfileDTO(EmployeeProfileDTO employeeProfileDTO) {
+        logger.info("Retrieving user record with employee ID ".concat(employeeProfileDTO.getEmployeeNumber()));
+
+        User user = userRepository.findByEmployee(employeeProfileRepository
+                .getReferenceById(employeeProfileDTO.getId()));
+        UserDTO userDTO = new UserDTO();
+
+        userDTO.setId(user.getId());
+        userDTO.setEmployeeDTO(new EmployeeProfileServiceImpl(employeeProfileRepository).getById(user.getEmployee().getId()));
+        userDTO.setUsername(user.getUsername());
+        userDTO.setPassword(user.getPassword());
+        userDTO.setRole(user.getRole());
+        userDTO.setEmailAddress(user.getEmailAddress());
+        userDTO.setAccountActive(user.isAccountActive());
+        userDTO.setPasswordChanged(user.isPasswordChanged());
+        userDTO.setCreatedBy(user.getCreatedBy());
+        userDTO.setDateAndTimeCreated(user.getDateAndTimeCreated());
+        userDTO.setUpdatedBy(user.getUpdatedBy());
+        userDTO.setDateAndTimeUpdated(user.getDateAndTimeUpdated());
+
+        logger.info("User record with employee id ".concat(employeeProfileDTO.getEmployeeNumber().toString()).concat(" is successfully retrieved."));
 
         return userDTO;
     }

@@ -131,4 +131,38 @@ public class TaxRatesServiceImpl implements TaxRatesService {
     public List<TaxRatesDTO> findByParameter(String param) {
         return List.of();
     }
+
+    @Override
+    public List<TaxRatesDTO> getTaxRatesByYear(int year) {
+        logger.info("Retrieving tax rate records with tax year " + year + " from the database.");
+        List<TaxRates> taxRatesList = taxRatesRepository.getTaxRatesByYear(year);
+
+        logger.info("Tax rate records with tax year " + year + " has successfully retrieved.");
+        List<TaxRatesDTO> taxRatesDTOList = new ArrayList<>();
+
+        if (!taxRatesList.isEmpty()) {
+            for (TaxRates taxRates : taxRatesList) {
+                TaxRatesDTO taxRatesDTO = new TaxRatesDTO();
+
+                taxRatesDTO.setId(taxRates.getId());
+                taxRatesDTO.setTaxYear(taxRates.getTaxYear());
+                taxRatesDTO.setEffectiveDate(taxRates.getEffectiveDate());
+                taxRatesDTO.setLowerBoundAmount(taxRates.getLowerBoundAmount());
+                taxRatesDTO.setUpperBoundAmount(taxRates.getUpperBoundAmount());
+                taxRatesDTO.setBaseTax(taxRates.getBaseTax());
+                taxRatesDTO.setRate(taxRates.getRate());
+                taxRatesDTO.setActiveTaxRate(taxRates.isActiveTaxRate());
+                taxRatesDTO.setCreatedBy(taxRates.getCreatedBy());
+                taxRatesDTO.setDateAndTimeCreated(taxRates.getDateAndTimeCreated());
+                taxRatesDTO.setUpdatedBy(taxRates.getUpdatedBy());
+                taxRatesDTO.setDateAndTimeUpdated(taxRates.getDateAndTimeUpdated());
+
+                taxRatesDTOList.add(taxRatesDTO);
+            }
+
+            logger.info(String.valueOf(taxRatesList.size()).concat(" record(s) found."));
+        }
+
+        return taxRatesDTOList;
+    }
 }
