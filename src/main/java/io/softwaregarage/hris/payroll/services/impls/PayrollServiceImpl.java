@@ -56,6 +56,7 @@ public class PayrollServiceImpl implements PayrollService {
         payroll.setCutOffFromDate(object.getCutOffFromDate());
         payroll.setCutOffToDate(object.getCutOffToDate());
         payroll.setBasicPayAmount(object.getBasicPayAmount());
+        payroll.setOvertimePayAmount(object.getOvertimePayAmount());
         payroll.setAllowancePayAmount(object.getAllowancePayAmount());
         payroll.setAbsentDeductionAmount(object.getAbsentDeductionAmount());
         payroll.setLateOrUndertimeDeductionAmount(object.getLateOrUndertimeDeductionAmount());
@@ -94,6 +95,7 @@ public class PayrollServiceImpl implements PayrollService {
         payrollDTO.setCutOffFromDate(payroll.getCutOffFromDate());
         payrollDTO.setCutOffToDate(payroll.getCutOffToDate());
         payrollDTO.setBasicPayAmount(payroll.getBasicPayAmount());
+        payrollDTO.setOvertimePayAmount(payroll.getOvertimePayAmount());
         payrollDTO.setAllowancePayAmount(payroll.getAllowancePayAmount());
         payrollDTO.setAbsentDeductionAmount(payroll.getAbsentDeductionAmount());
         payrollDTO.setLateOrUndertimeDeductionAmount(payroll.getLateOrUndertimeDeductionAmount());
@@ -149,6 +151,7 @@ public class PayrollServiceImpl implements PayrollService {
                 payrollDTO.setCutOffFromDate(payroll.getCutOffFromDate());
                 payrollDTO.setCutOffToDate(payroll.getCutOffToDate());
                 payrollDTO.setBasicPayAmount(payroll.getBasicPayAmount());
+                payrollDTO.setOvertimePayAmount(payroll.getOvertimePayAmount());
                 payrollDTO.setAllowancePayAmount(payroll.getAllowancePayAmount());
                 payrollDTO.setAbsentDeductionAmount(payroll.getAbsentDeductionAmount());
                 payrollDTO.setLateOrUndertimeDeductionAmount(payroll.getLateOrUndertimeDeductionAmount());
@@ -210,6 +213,7 @@ public class PayrollServiceImpl implements PayrollService {
                 payrollDTO.setCutOffFromDate(payroll.getCutOffFromDate());
                 payrollDTO.setCutOffToDate(payroll.getCutOffToDate());
                 payrollDTO.setBasicPayAmount(payroll.getBasicPayAmount());
+                payrollDTO.setOvertimePayAmount(payroll.getOvertimePayAmount());
                 payrollDTO.setAllowancePayAmount(payroll.getAllowancePayAmount());
                 payrollDTO.setAbsentDeductionAmount(payroll.getAbsentDeductionAmount());
                 payrollDTO.setLateOrUndertimeDeductionAmount(payroll.getLateOrUndertimeDeductionAmount());
@@ -267,6 +271,7 @@ public class PayrollServiceImpl implements PayrollService {
                 payrollDTO.setCutOffFromDate(payroll.getCutOffFromDate());
                 payrollDTO.setCutOffToDate(payroll.getCutOffToDate());
                 payrollDTO.setBasicPayAmount(payroll.getBasicPayAmount());
+                payrollDTO.setOvertimePayAmount(payroll.getOvertimePayAmount());
                 payrollDTO.setAllowancePayAmount(payroll.getAllowancePayAmount());
                 payrollDTO.setAbsentDeductionAmount(payroll.getAbsentDeductionAmount());
                 payrollDTO.setLateOrUndertimeDeductionAmount(payroll.getLateOrUndertimeDeductionAmount());

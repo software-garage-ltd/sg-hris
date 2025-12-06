@@ -242,9 +242,6 @@ public class LeaveFilingView extends VerticalLayout {
         employeeLeaveFilingDTOGrid.setMultiSort(true, Grid.MultiSortPriority.APPEND);
         employeeLeaveFilingDTOGrid.setAllRowsVisible(true);
         employeeLeaveFilingDTOGrid.setEmptyStateText("No leave filing found.");
-        employeeLeaveFilingDTOGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
-                                                    GridVariant.LUMO_COLUMN_BORDERS,
-                                                    GridVariant.LUMO_WRAP_CELL_CONTENT);
         employeeLeaveFilingDTOGrid.setItems(employeeLeaveFilingDTOList);
     }
 
