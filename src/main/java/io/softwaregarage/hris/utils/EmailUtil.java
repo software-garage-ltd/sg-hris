@@ -6,17 +6,17 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
 
 /**
  * An email utility class that provides the following functions:
@@ -127,6 +127,8 @@ public class EmailUtil {
                     payrollDTO.getCutOffToDate().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")));
             employeePayslipTemplate = employeePayslipTemplate.replace("${basicPay}",
                     amountFormat.format(payrollDTO.getBasicPayAmount()));
+            employeePayslipTemplate = employeePayslipTemplate.replace("${overtimePay}",
+                    amountFormat.format(payrollDTO.getOvertimePayAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${absentDeduction}",
                     amountFormat.format(payrollDTO.getAbsentDeductionAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${allowancePay}",
