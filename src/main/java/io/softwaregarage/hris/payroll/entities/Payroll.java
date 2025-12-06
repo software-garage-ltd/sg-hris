@@ -25,6 +25,9 @@ public class Payroll extends BaseEntity {
     @Column(name = "basic_pay_amount", nullable = false)
     private BigDecimal basicPayAmount;
 
+    @Column(name = "overtime_pay_amount", nullable = false)
+    private BigDecimal overtimePayAmount;
+
     @Column(name = "allowance_pay_amount", nullable = false)
     private BigDecimal allowancePayAmount;
 
@@ -109,6 +112,14 @@ public class Payroll extends BaseEntity {
 
     public void setBasicPayAmount(BigDecimal basicPayAmount) {
         this.basicPayAmount = basicPayAmount;
+    }
+
+    public BigDecimal getOvertimePayAmount() {
+        return overtimePayAmount;
+    }
+
+    public void setOvertimePayAmount(BigDecimal overtimePayAmount) {
+        this.overtimePayAmount = overtimePayAmount;
     }
 
     public BigDecimal getAllowancePayAmount() {

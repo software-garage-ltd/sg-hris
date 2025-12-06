@@ -24,6 +24,8 @@ import com.vaadin.flow.server.streams.DownloadResponse;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import io.softwaregarage.hris.admin.views.*;
+import io.softwaregarage.hris.attendance.services.EmployeeOvertimeService;
+import io.softwaregarage.hris.attendance.views.EmployeeOvertimeApprovalsList;
 import io.softwaregarage.hris.compenben.views.*;
 import io.softwaregarage.hris.admin.dtos.UserDTO;
 import io.softwaregarage.hris.admin.services.UserService;
@@ -61,6 +63,9 @@ public class MainLayout extends AppLayout {
     private final EmployeeLeaveFilingService employeeLeaveFilingService;
 
     @Resource
+    private final EmployeeOvertimeService employeeOvertimeService;
+
+    @Resource
     private final DocumentProfileService documentProfileService;
 
     private UserDTO userDTO;
@@ -70,9 +75,11 @@ public class MainLayout extends AppLayout {
 
     public MainLayout(UserService userService,
                       EmployeeLeaveFilingService employeeLeaveFilingService,
+                      EmployeeOvertimeService employeeOvertimeService,
                       DocumentProfileService documentProfileService) {
         this.userService = userService;
         this.employeeLeaveFilingService = employeeLeaveFilingService;
+        this.employeeOvertimeService = employeeOvertimeService;
         this.documentProfileService = documentProfileService;
 
         // Gets the user data transfer object based from the logged-in user.
@@ -169,6 +176,7 @@ public class MainLayout extends AppLayout {
         nav.addItem(new SideNavItem("My Dashboard", DashboardView.class, LineAwesomeIcon.CHART_BAR_SOLID.create()));
         nav.addItem(new SideNavItem("My Profile", EmployeeInfoView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
         nav.addItem(new SideNavItem("My Attendance", AttendanceView.class, LineAwesomeIcon.CLOCK.create()));
+        nav.addItem(new SideNavItem("My Overtime Filings", OvertimeFiling.class, LineAwesomeIcon.STOPWATCH_SOLID.create()));
         nav.addItem(new SideNavItem("My Leave Filings", LeaveFilingView.class, LineAwesomeIcon.DOOR_OPEN_SOLID.create()));
 
         if (!this.createEmployeeNavigation().getItems().isEmpty()) {
@@ -246,6 +254,34 @@ public class MainLayout extends AppLayout {
             if (pendingLeaveCounts > 0) leaveApprovalNavItem.setSuffixComponent(counter);
 
             navItem.addItem(leaveApprovalNavItem);
+        }
+
+        if (userDTO.getRole().equals("ROLE_ADMIN") ||
+                userDTO.getRole().equals("ROLE_HR_MANAGER") ||
+                userDTO.getRole().equals("ROLE_HR_SUPERVISOR") ||
+                userDTO.getRole().equals("ROLE_MANAGER") ||
+                userDTO.getRole().equals("ROLE_SUPERVISOR")) {
+            // Get the count of pending overtimes to approved. Check every 5 seconds.
+            int pendingOvertimeCounts = employeeOvertimeService
+                    .findByAssignedApproverEmployeeDTO(userDTO.getEmployeeDTO())
+                    .stream()
+                    .filter(employeeOvertimeDTO ->
+                            employeeOvertimeDTO.getStatus().equals("PENDING"))
+                    .toList()
+                    .size();
+
+            // Show a notification badge that displays the count of leaves to be approved.
+            Span counter = new Span(String.valueOf(pendingOvertimeCounts));
+            counter.getElement().getThemeList().add("badge pill medium error primary");
+            counter.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
+
+            // Create the navigation item for leave approvals.
+            SideNavItem overtimeApprovalNavItem = new SideNavItem("Overtime Approvals",
+                    EmployeeOvertimeApprovalsList.class,
+                    LineAwesomeIcon.STOPWATCH_SOLID.create());
+            if (pendingOvertimeCounts > 0) overtimeApprovalNavItem.setSuffixComponent(counter);
+
+            navItem.addItem(overtimeApprovalNavItem);
         }
 
         return navItem;

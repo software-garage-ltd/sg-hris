@@ -4,16 +4,16 @@ import io.softwaregarage.hris.admin.dtos.CalendarHolidaysDTO;
 import io.softwaregarage.hris.admin.services.CalendarHolidaysService;
 import io.softwaregarage.hris.attendance.dtos.EmployeeDailyTimesheetDTO;
 import io.softwaregarage.hris.attendance.dtos.EmployeeLeaveFilingDTO;
+import io.softwaregarage.hris.attendance.dtos.EmployeeOvertimeDTO;
 import io.softwaregarage.hris.attendance.dtos.EmployeeTimesheetDTO;
 import io.softwaregarage.hris.attendance.services.EmployeeLeaveFilingService;
+import io.softwaregarage.hris.attendance.services.EmployeeOvertimeService;
 import io.softwaregarage.hris.attendance.services.EmployeeTimesheetService;
 import io.softwaregarage.hris.compenben.dtos.LoanDeductionDTO;
 import io.softwaregarage.hris.compenben.services.LoanDeductionService;
 import io.softwaregarage.hris.payroll.dtos.RatesDTO;
 import io.softwaregarage.hris.payroll.dtos.TaxRatesDTO;
 import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
-
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
@@ -31,11 +31,14 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 @Service
 public class PayrollCalculatorService {
     private final CalendarHolidaysService calendarHolidaysService;
     private final EmployeeTimesheetService employeeTimesheetService;
     private final EmployeeLeaveFilingService employeeLeaveFilingService;
+    private final EmployeeOvertimeService  employeeOvertimeService;
     private final LoanDeductionService loanDeductionService;
     private final RatesService ratesService;
     private final TaxRatesService taxRatesService;
@@ -50,12 +53,14 @@ public class PayrollCalculatorService {
     public PayrollCalculatorService(CalendarHolidaysService calendarHolidaysService,
                                     EmployeeTimesheetService employeeTimesheetService,
                                     EmployeeLeaveFilingService employeeLeaveFilingService,
+                                    EmployeeOvertimeService employeeOvertimeService,
                                     LoanDeductionService loanDeductionService,
                                     RatesService ratesService,
                                     TaxRatesService taxRatesService) {
         this.calendarHolidaysService = calendarHolidaysService;
         this.employeeTimesheetService = employeeTimesheetService;
         this.employeeLeaveFilingService = employeeLeaveFilingService;
+        this.employeeOvertimeService = employeeOvertimeService;
         this.loanDeductionService = loanDeductionService;
         this.ratesService = ratesService;
         this.taxRatesService = taxRatesService;
@@ -119,8 +124,72 @@ public class PayrollCalculatorService {
         List<EmployeeDailyTimesheetDTO> employeeDailyTimesheetDTOList = this.getEmployeeDailyTimesheet(employeeProfileDTO, fromDate, toDate);
         RatesDTO ratesDTO = ratesService.findByEmployeeDTO(employeeProfileDTO);
         BigDecimal dailyRate = ratesDTO.getDailyCompensationRate();
-        return dailyRate.multiply(BigDecimal.valueOf(employeeDailyTimesheetDTOList.size()));
+        return dailyRate.multiply(BigDecimal.valueOf(employeeDailyTimesheetDTOList.size()))
+                .setScale(2, RoundingMode.HALF_UP);
     }
+
+    public BigDecimal computeOvertime(EmployeeProfileDTO employeeProfileDTO,
+                                      LocalDate fromDate,
+                                      LocalDate toDate) {
+        RatesDTO rates = ratesService.findByEmployeeDTO(employeeProfileDTO);
+        BigDecimal hourlyRate = rates.getHourlyCompensationRate();
+        BigDecimal overtimePay = BigDecimal.ZERO;
+
+        // Get approved overtime within cut-off dates
+        List<EmployeeOvertimeDTO> approvedOvertimes = employeeOvertimeService.findByEmployeeDTO(employeeProfileDTO)
+                .stream()
+                .filter(dto -> "APPROVED".equals(dto.getStatus()))
+                .filter(dto -> {
+                    LocalDate overtimeDate = dto.getOvertimeDate();
+                    return overtimeDate != null &&
+                            !overtimeDate.isBefore(fromDate) &&
+                            !overtimeDate.isAfter(toDate);
+                })
+                .toList();
+
+        if (!approvedOvertimes.isEmpty()) {
+            // Load holiday dates
+            List<LocalDate> regularHolidays = calendarHolidaysService.findByParameter(REGULAR_HOLIDAY)
+                    .stream()
+                    .map(CalendarHolidaysDTO::getHolidayDate)
+                    .filter(date -> !date.isBefore(fromDate) && !date.isAfter(toDate))
+                    .toList();
+
+            List<LocalDate> specialHolidays = calendarHolidaysService.findByParameter(SPECIAL_HOLIDAY)
+                    .stream()
+                    .map(CalendarHolidaysDTO::getHolidayDate)
+                    .filter(date -> !date.isBefore(fromDate) && !date.isAfter(toDate))
+                    .toList();
+
+            List<LocalDate> specialNonWorkingHolidays = calendarHolidaysService.findByParameter(SPECIAL_NON_WORKING_HOLIDAY)
+                    .stream()
+                    .map(CalendarHolidaysDTO::getHolidayDate)
+                    .filter(date -> !date.isBefore(fromDate) && !date.isAfter(toDate))
+                    .toList();
+
+            // Compute overtime pay
+            for (EmployeeOvertimeDTO overtime : approvedOvertimes) {
+                int hours = overtime.getOvertimeNumberOfHours();
+                if (hours <= 0) continue;
+
+                LocalDate date = overtime.getOvertimeDate();
+                BigDecimal base = hourlyRate.multiply(BigDecimal.valueOf(hours));
+
+                if (regularHolidays.contains(date)) {
+                    overtimePay = overtimePay.add(base.multiply(BigDecimal.valueOf(2.0)).multiply(BigDecimal.valueOf(1.3)));
+                } else if (specialHolidays.contains(date)) {
+                    overtimePay = overtimePay.add(base.multiply(BigDecimal.valueOf(1.3)).multiply(BigDecimal.valueOf(1.3)));
+                } else if (specialNonWorkingHolidays.contains(date)) {
+                    overtimePay = overtimePay.add(base.multiply(BigDecimal.valueOf(1.3)).multiply(BigDecimal.valueOf(1.3)));
+                } else {
+                    overtimePay = overtimePay.add(base);
+                }
+            }
+        }
+
+        return overtimePay.setScale(2, RoundingMode.HALF_UP);
+    }
+
 
     public BigDecimal computeAmountForRegularHoliday(EmployeeProfileDTO employeeProfileDTO,
                                                      LocalDate fromDate,
@@ -136,7 +205,6 @@ public class PayrollCalculatorService {
 
         RatesDTO rates = ratesService.findByEmployeeDTO(employeeProfileDTO);
         BigDecimal dailyRate = rates.getDailyCompensationRate();
-        BigDecimal hourlyRate = rates.getHourlyCompensationRate();
 
         for (CalendarHolidaysDTO holiday : holidays) {
             LocalDate holidayDate = holiday.getHolidayDate();
@@ -157,17 +225,6 @@ public class PayrollCalculatorService {
                     String workedDay = ts.getLogDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
                     if (!ts.getEmployeeShiftScheduleDTO().getShiftScheduledDays().contains(workedDay)) {
                         base = dailyRate.multiply(BigDecimal.valueOf(2.6));
-                    }
-
-                    // Overtime
-                    Duration workDuration = Duration.between(ts.getLogInTime(), ts.getLogOutTime());
-                    long overtimeHours = workDuration.toHours() - noOfWorkingHours;
-                    if (overtimeHours > 0) {
-                        BigDecimal overtimeRate = hourlyRate
-                                .multiply(BigDecimal.valueOf(overtimeHours))
-                                .multiply(BigDecimal.valueOf(2.0)) // holiday premium
-                                .multiply(BigDecimal.valueOf(1.3)); // overtime premium
-                        base = base.add(overtimeRate);
                     }
 
                     totalRegularHolidayAmount = totalRegularHolidayAmount.add(base);
@@ -196,7 +253,6 @@ public class PayrollCalculatorService {
 
         RatesDTO rates = ratesService.findByEmployeeDTO(employeeProfileDTO);
         BigDecimal dailyRate = rates.getDailyCompensationRate();
-        BigDecimal hourlyRate = rates.getHourlyCompensationRate();
 
         for (CalendarHolidaysDTO holiday : holidays) {
             LocalDate holidayDate = holiday.getHolidayDate();
@@ -217,17 +273,6 @@ public class PayrollCalculatorService {
                     String workedDay = ts.getLogDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
                     if (!ts.getEmployeeShiftScheduleDTO().getShiftScheduledDays().contains(workedDay)) {
                         base = dailyRate.multiply(BigDecimal.valueOf(1.5));
-                    }
-
-                    // Overtime
-                    Duration workDuration = Duration.between(ts.getLogInTime(), ts.getLogOutTime());
-                    long overtimeHours = workDuration.toHours() - noOfWorkingHours;
-                    if (overtimeHours > 0) {
-                        BigDecimal overtimeRate = hourlyRate
-                                .multiply(BigDecimal.valueOf(overtimeHours))
-                                .multiply(BigDecimal.valueOf(1.3)) // holiday premium
-                                .multiply(BigDecimal.valueOf(1.3)); // overtime premium
-                        base = base.add(overtimeRate);
                     }
 
                     totalSpecialHolidayAmount = totalSpecialHolidayAmount.add(base);
@@ -276,17 +321,6 @@ public class PayrollCalculatorService {
                     String workedDay = ts.getLogDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
                     if (!ts.getEmployeeShiftScheduleDTO().getShiftScheduledDays().contains(workedDay)) {
                         base = dailyRate.multiply(BigDecimal.valueOf(1.5));
-                    }
-
-                    // Overtime computation
-                    Duration workDuration = Duration.between(ts.getLogInTime(), ts.getLogOutTime());
-                    long overtimeHours = workDuration.toHours() - scheduledHours;
-                    if (overtimeHours > 0) {
-                        BigDecimal overtimeRate = hourlyRate
-                                .multiply(BigDecimal.valueOf(overtimeHours))
-                                .multiply(BigDecimal.valueOf(1.3)) // holiday premium
-                                .multiply(BigDecimal.valueOf(1.3)); // overtime premium
-                        base = base.add(overtimeRate);
                     }
 
                     totalSpecialNonWorkingHolidayAmount = totalSpecialNonWorkingHolidayAmount.add(base);

@@ -133,6 +133,11 @@ public class PayrollGeneratorView extends VerticalLayout {
                             cutOffFromDatePicker.getValue(),
                             cutOffToDatePicker.getValue());
 
+                    // Get the employee's total overtime pay based on his overtime request.
+                    BigDecimal overtimePay = payrollCalculatorService.computeOvertime(employeeProfileComboBox.getValue(),
+                            cutOffFromDatePicker.getValue(),
+                            cutOffToDatePicker.getValue());
+
                     // Get the employee's total allowances;
                     BigDecimal allowancePay = allowanceService
                             .getSumOfAllowanceByEmployeeDTO(employeeProfileComboBox.getValue());
@@ -174,6 +179,7 @@ public class PayrollGeneratorView extends VerticalLayout {
                                     cutOffToDatePicker.getValue());
 
                     BigDecimal totalGrossPayAmount = basicPay.add(allowancePay)
+                            .add(overtimePay)
                             .add(restDayAmount)
                             .add(nightDifferentialAmount)
                             .add(leavePayAmount)
@@ -223,6 +229,7 @@ public class PayrollGeneratorView extends VerticalLayout {
                     payrollDTO.setCutOffFromDate(cutOffFromDatePicker.getValue());
                     payrollDTO.setCutOffToDate(cutOffToDatePicker.getValue());
                     payrollDTO.setBasicPayAmount(basicPay);
+                    payrollDTO.setOvertimePayAmount(overtimePay);
                     payrollDTO.setAllowancePayAmount(allowancePay);
                     payrollDTO.setAbsentDeductionAmount(absentDeductionAmount);
                     payrollDTO.setLateOrUndertimeDeductionAmount(lateOrUndertimeAmount);

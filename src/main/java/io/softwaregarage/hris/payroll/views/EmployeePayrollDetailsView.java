@@ -99,6 +99,12 @@ public class EmployeePayrollDetailsView extends VerticalLayout implements HasUrl
         Span basicPayValueSpan = new Span("PHP ".concat(String.valueOf(payrollDTO.getBasicPayAmount())));
         basicPayValueSpan.getStyle().setFontWeight("bold");
 
+        Span overtimePayLabelSpan = new Span("Overtime Pay");
+        overtimePayLabelSpan.getStyle().set("text-align", "right");
+
+        Span overtimePayValueSpan = new Span("PHP ".concat(String.valueOf(payrollDTO.getOvertimePayAmount())));
+        overtimePayValueSpan.getStyle().setFontWeight("bold");
+
         Span allowancePayLabelSpan = new Span("Allowance Pay");
         allowancePayLabelSpan.getStyle().set("text-align", "right");
 
@@ -204,6 +210,8 @@ public class EmployeePayrollDetailsView extends VerticalLayout implements HasUrl
         payDetailsLayout.add(
                 basicPayLabelSpan,
                 basicPayValueSpan,
+                overtimePayLabelSpan,
+                overtimePayValueSpan,
                 allowancePayLabelSpan,
                 allowancePayValueSpan,
                 restDayPayLabelSpan,
