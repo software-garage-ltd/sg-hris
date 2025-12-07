@@ -77,8 +77,20 @@ public class GovernmentContributionsDetailsView extends VerticalLayout implement
         Span sssAmountValueSpan = new Span("PHP" + governmentContributionsDTO.getSssContributionAmount());
         sssAmountValueSpan.getStyle().setFontWeight("bold");
 
+        Span sssCutOffLabelSpan = new Span("SSS Contribution Cut-Off");
+        sssCutOffLabelSpan.getStyle().set("text-align", "right");
+
+        Span sssCutOffValueSpan = new Span(governmentContributionsDTO.getSssContributionCutOff() == 1 ? "1st Cut-Off" : "2nd Cut-Off");
+        sssCutOffValueSpan.getStyle().setFontWeight("bold");
+
         Span hdmfAmountLabelSpan = new Span("HDMF Contribution Amount");
         hdmfAmountLabelSpan.getStyle().set("text-align", "right");
+
+        Span hdmfCutOffLabelSpan = new Span("HDMF Contribution Cut-Off");
+        hdmfCutOffLabelSpan.getStyle().set("text-align", "right");
+
+        Span hdmfCutOffValueSpan = new Span(governmentContributionsDTO.getHdmfContributionCutOff() == 1 ? "1st Cut-Off" : "2nd Cut-Off");
+        hdmfCutOffValueSpan.getStyle().setFontWeight("bold");
 
         Span hdmfAmountValueSpan = new Span("PHP" + governmentContributionsDTO.getHdmfContributionAmount());
         hdmfAmountValueSpan.getStyle().setFontWeight("bold");
@@ -89,16 +101,28 @@ public class GovernmentContributionsDetailsView extends VerticalLayout implement
         Span philhealthAmountValueSpan = new Span("PHP" + governmentContributionsDTO.getPhilhealthContributionAmount());
         philhealthAmountValueSpan.getStyle().setFontWeight("bold");
 
+        Span philhealthCutOffLabelSpan = new Span("Philhealth Contribution Cut-Off");
+        philhealthCutOffLabelSpan.getStyle().set("text-align", "right");
+
+        Span philhealthCutOffValueSpan = new Span(governmentContributionsDTO.getPhilhealthContributionCutOff() == 1 ? "1st Cut-Off" : "2nd Cut-Off");
+        philhealthCutOffValueSpan.getStyle().setFontWeight("bold");
+
         governmentContributionsDetailsLayout.add(employeeNoLabelSpan,
                 employeeNoValueSpan,
                 employeeNameLabelSpan,
                 employeeNameValueSpan,
                 sssAmountLabelSpan,
                 sssAmountValueSpan,
+                sssCutOffLabelSpan,
+                sssCutOffValueSpan,
                 hdmfAmountLabelSpan,
                 hdmfAmountValueSpan,
+                hdmfCutOffLabelSpan,
+                hdmfCutOffValueSpan,
                 philhealthAmountLabelSpan,
-                philhealthAmountValueSpan);
+                philhealthAmountValueSpan,
+                philhealthCutOffLabelSpan,
+                philhealthCutOffValueSpan);
         governmentContributionsDetailsLayout.setWidth("720px");
     }
 }

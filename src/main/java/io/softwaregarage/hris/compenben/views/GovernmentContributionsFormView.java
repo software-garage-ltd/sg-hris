@@ -10,6 +10,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.*;
@@ -24,7 +25,9 @@ import io.softwaregarage.hris.commons.views.MainLayout;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @RolesAllowed({"ROLE_ADMIN",
@@ -42,8 +45,12 @@ public class GovernmentContributionsFormView extends VerticalLayout implements H
     private final FormLayout governmentContributionsDTOFormLayout = new FormLayout();
     private ComboBox<EmployeeProfileDTO> employeeDTOComboBox;
     private BigDecimalField sssAmountField, hdmfAmountField, philhealthAmountField;
+    private RadioButtonGroup<Integer> sssCutOffRadioButtonGroup,
+            hdmfCutOffRadioButtonGroup,
+            philhealthCutOffRadioButtonGroup;
 
-    public GovernmentContributionsFormView(GovernmentContributionsService governmentContributionsService, EmployeeProfileService employeeProfileService) {
+    public GovernmentContributionsFormView(GovernmentContributionsService governmentContributionsService,
+                                           EmployeeProfileService employeeProfileService) {
         this.governmentContributionsService = governmentContributionsService;
         this.employeeProfileService = employeeProfileService;
 
@@ -82,12 +89,30 @@ public class GovernmentContributionsFormView extends VerticalLayout implements H
         Div phpPrefix = new Div();
         phpPrefix.setText("PHP");
 
+        // Add a set of values for the radio button cut-offs.
+        Set<Integer> cutOffValues =  new HashSet<>();
+        cutOffValues.add(1);
+        cutOffValues.add(2);
+
         sssAmountField = new BigDecimalField("SSS Contribution Amount");
         sssAmountField.setPlaceholder("0.00");
         sssAmountField.setRequired(true);
         sssAmountField.setRequiredIndicatorVisible(true);
         sssAmountField.setPrefixComponent(phpPrefix);
         if (governmentContributionsDTO != null) sssAmountField.setValue(governmentContributionsDTO.getSssContributionAmount());
+
+        sssCutOffRadioButtonGroup = new RadioButtonGroup<>("SSS Cut-off");
+        sssCutOffRadioButtonGroup.setItems(cutOffValues);
+        sssCutOffRadioButtonGroup.setItemLabelGenerator(integer -> {
+            switch (integer) {
+                case 1: return "1st Cut-Off";
+                case 2: return "2nd Cut-Off";
+                default: return "Unknown";
+            }
+        });
+        sssCutOffRadioButtonGroup.setRequired(true);
+        sssCutOffRadioButtonGroup.setRequiredIndicatorVisible(true);
+        if (governmentContributionsDTO != null) sssCutOffRadioButtonGroup.setValue(governmentContributionsDTO.getSssContributionCutOff());
 
         hdmfAmountField = new BigDecimalField("HDMF Contribution Amount");
         hdmfAmountField.setPlaceholder("0.00");
@@ -96,12 +121,38 @@ public class GovernmentContributionsFormView extends VerticalLayout implements H
         hdmfAmountField.setPrefixComponent(phpPrefix);
         if (governmentContributionsDTO != null) hdmfAmountField.setValue(governmentContributionsDTO.getHdmfContributionAmount());
 
+        hdmfCutOffRadioButtonGroup = new RadioButtonGroup<>("HDMF Cut-off");
+        hdmfCutOffRadioButtonGroup.setItems(cutOffValues);
+        hdmfCutOffRadioButtonGroup.setItemLabelGenerator(integer -> {
+            switch (integer) {
+                case 1: return "1st Cut-Off";
+                case 2: return "2nd Cut-Off";
+                default: return "Unknown";
+            }
+        });
+        hdmfCutOffRadioButtonGroup.setRequired(true);
+        hdmfCutOffRadioButtonGroup.setRequiredIndicatorVisible(true);
+        if (governmentContributionsDTO != null) hdmfCutOffRadioButtonGroup.setValue(governmentContributionsDTO.getHdmfContributionCutOff());
+
         philhealthAmountField = new BigDecimalField("Philhealth Contribution Amount");
         philhealthAmountField.setPlaceholder("0.00");
         philhealthAmountField.setRequired(true);
         philhealthAmountField.setRequiredIndicatorVisible(true);
         philhealthAmountField.setPrefixComponent(phpPrefix);
         if (governmentContributionsDTO != null) philhealthAmountField.setValue(governmentContributionsDTO.getPhilhealthContributionAmount());
+
+        philhealthCutOffRadioButtonGroup = new RadioButtonGroup<>("Philhealth Cut-off");
+        philhealthCutOffRadioButtonGroup.setItems(cutOffValues);
+        philhealthCutOffRadioButtonGroup.setItemLabelGenerator(integer -> {
+            switch (integer) {
+                case 1: return "1st Cut-Off";
+                case 2: return "2nd Cut-Off";
+                default: return "Unknown";
+            }
+        });
+        philhealthCutOffRadioButtonGroup.setRequired(true);
+        philhealthCutOffRadioButtonGroup.setRequiredIndicatorVisible(true);
+        if (governmentContributionsDTO != null) philhealthCutOffRadioButtonGroup.setValue(governmentContributionsDTO.getPhilhealthContributionCutOff());
 
         Button saveButton = new Button("Save");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -125,11 +176,14 @@ public class GovernmentContributionsFormView extends VerticalLayout implements H
 
         governmentContributionsDTOFormLayout.add(employeeDTOComboBox,
                                                  sssAmountField,
+                                                 sssCutOffRadioButtonGroup,
                                                  hdmfAmountField,
+                                                 hdmfCutOffRadioButtonGroup,
                                                  philhealthAmountField,
+                                                 philhealthCutOffRadioButtonGroup,
                                                  buttonLayout);
-        governmentContributionsDTOFormLayout.setColspan(employeeDTOComboBox, 3);
-        governmentContributionsDTOFormLayout.setColspan(buttonLayout, 3);
+        governmentContributionsDTOFormLayout.setColspan(employeeDTOComboBox, 2);
+        governmentContributionsDTOFormLayout.setColspan(buttonLayout, 2);
         governmentContributionsDTOFormLayout.setMaxWidth("720px");
     }
 
@@ -145,8 +199,11 @@ public class GovernmentContributionsFormView extends VerticalLayout implements H
 
         governmentContributionsDTO.setEmployeeDTO(employeeDTOComboBox.getValue());
         governmentContributionsDTO.setSssContributionAmount(sssAmountField.getValue());
+        governmentContributionsDTO.setSssContributionCutOff(sssCutOffRadioButtonGroup.getValue());
         governmentContributionsDTO.setHdmfContributionAmount(hdmfAmountField.getValue());
+        governmentContributionsDTO.setHdmfContributionCutOff(hdmfCutOffRadioButtonGroup.getValue());
         governmentContributionsDTO.setPhilhealthContributionAmount(philhealthAmountField.getValue());
+        governmentContributionsDTO.setPhilhealthContributionCutOff(philhealthCutOffRadioButtonGroup.getValue());
         governmentContributionsDTO.setUpdatedBy(loggedInUser);
 
         governmentContributionsService.saveOrUpdate(governmentContributionsDTO);
