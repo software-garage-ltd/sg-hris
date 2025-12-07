@@ -17,11 +17,20 @@ public class GovernmentContributions extends BaseEntity {
     @Column(name = "sss_contribution_amount", nullable = false)
     private BigDecimal sssContrbutionAmount;
 
+    @Column(name = "sss_contribution_cutoff", nullable = false)
+    private Integer sssContributionCutOff;
+
     @Column(name = "hdmf_contribution_amount", nullable = false)
     private BigDecimal hdmfContrbutionAmount;
 
+    @Column(name = "hdmf_contribution_cutoff", nullable = false)
+    private Integer hdmfContributionCutOff;
+
     @Column(name = "philhealth_contribution_amount", nullable = false)
     private BigDecimal philhealthContributionAmount;
+
+    @Column(name = "philhealth_contribution_cutoff", nullable = false)
+    private Integer philhealthContributionCutOff;
 
     public EmployeeProfile getEmployee() {
         return employeeProfile;
@@ -39,6 +48,14 @@ public class GovernmentContributions extends BaseEntity {
         this.sssContrbutionAmount = sssContrbutionAmount;
     }
 
+    public Integer getSssContributionCutOff() {
+        return sssContributionCutOff;
+    }
+
+    public void setSssContributionCutOff(Integer sssContributionCutOff) {
+        this.sssContributionCutOff = sssContributionCutOff;
+    }
+
     public BigDecimal getHdmfContrbutionAmount() {
         return hdmfContrbutionAmount;
     }
@@ -47,11 +64,27 @@ public class GovernmentContributions extends BaseEntity {
         this.hdmfContrbutionAmount = hdmfContrbutionAmount;
     }
 
+    public Integer getHdmfContributionCutOff() {
+        return hdmfContributionCutOff;
+    }
+
+    public void setHdmfContributionCutOff(Integer hdmfContributionCutOff) {
+        this.hdmfContributionCutOff = hdmfContributionCutOff;
+    }
+
     public BigDecimal getPhilhealthContributionAmount() {
         return philhealthContributionAmount;
     }
 
     public void setPhilhealthContributionAmount(BigDecimal philhealthContributionAmount) {
         this.philhealthContributionAmount = philhealthContributionAmount;
+    }
+
+    public Integer getPhilhealthContributionCutOff() {
+        return philhealthContributionCutOff;
+    }
+
+    public void setPhilhealthContributionCutOff(Integer philhealthContributionCutOff) {
+        this.philhealthContributionCutOff = philhealthContributionCutOff;
     }
 }
