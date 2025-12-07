@@ -1,13 +1,11 @@
 package io.softwaregarage.hris.compenben.services.impls;
 
-import io.softwaregarage.hris.compenben.dtos.AllowanceDTO;
 import io.softwaregarage.hris.compenben.dtos.GovernmentContributionsDTO;
 import io.softwaregarage.hris.compenben.entities.GovernmentContributions;
 import io.softwaregarage.hris.compenben.repositories.GovernmentContributionsRepository;
 import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
 import io.softwaregarage.hris.profile.repositories.EmployeeProfileRepository;
 import io.softwaregarage.hris.compenben.services.GovernmentContributionsService;
-import io.softwaregarage.hris.profile.services.impls.EmployeeProfileServiceImpl;
 import io.softwaregarage.hris.profile.services.EmployeeProfileService;
 
 import org.slf4j.Logger;
@@ -54,8 +52,11 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
         }
 
         governmentContributions.setSssContrbutionAmount(object.getSssContributionAmount());
+        governmentContributions.setSssContributionCutOff(object.getSssContributionCutOff());
         governmentContributions.setHdmfContrbutionAmount(object.getHdmfContributionAmount());
+        governmentContributions.setHdmfContributionCutOff(object.getHdmfContributionCutOff());
         governmentContributions.setPhilhealthContributionAmount(object.getPhilhealthContributionAmount());
+        governmentContributions.setPhilhealthContributionCutOff(object.getPhilhealthContributionCutOff());
         governmentContributions.setEmployee(employeeProfileRepository.getReferenceById(object.getEmployeeDTO().getId()));
         governmentContributions.setUpdatedBy(object.getUpdatedBy());
         governmentContributions.setDateAndTimeUpdated(LocalDateTime.now(ZoneId.of("Asia/Manila")));
@@ -68,18 +69,8 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
     public GovernmentContributionsDTO getById(UUID id) {
         logger.info("Retrieving employee's government contributions record with UUID ".concat(id.toString()));
 
-        GovernmentContributions governmentContributions = governmentContributionsRepository.getById(id);
-        GovernmentContributionsDTO governmentContributionsDTO = new GovernmentContributionsDTO();
-
-        governmentContributionsDTO.setId(governmentContributions.getId());
-        governmentContributionsDTO.setSssContributionAmount(governmentContributions.getSssContrbutionAmount());
-        governmentContributionsDTO.setHdmfContributionAmount(governmentContributions.getHdmfContrbutionAmount());
-        governmentContributionsDTO.setPhilhealthContributionAmount(governmentContributions.getPhilhealthContributionAmount());
-        governmentContributionsDTO.setEmployeeDTO(employeeProfileService.getById(governmentContributions.getEmployee().getId()));
-        governmentContributionsDTO.setCreatedBy(governmentContributions.getCreatedBy());
-        governmentContributionsDTO.setDateAndTimeCreated(governmentContributions.getDateAndTimeCreated());
-        governmentContributionsDTO.setUpdatedBy(governmentContributions.getUpdatedBy());
-        governmentContributionsDTO.setDateAndTimeUpdated(governmentContributions.getDateAndTimeUpdated());
+        GovernmentContributions governmentContributions = governmentContributionsRepository.getReferenceById(id);
+        GovernmentContributionsDTO governmentContributionsDTO = this.buildGovernmentContributionsDTO(governmentContributions);
 
         logger.info("Employee's government contriibutions record with id ".concat(id.toString()).concat(" is successfully retrieved."));
         return governmentContributionsDTO;
@@ -108,19 +99,7 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
 
         if (!governmentContributionsList.isEmpty()) {
             for (GovernmentContributions governmentContributions : governmentContributionsList) {
-                GovernmentContributionsDTO governmentContributionsDTO = new GovernmentContributionsDTO();
-
-                governmentContributionsDTO.setId(governmentContributions.getId());
-                governmentContributionsDTO.setSssContributionAmount(governmentContributions.getSssContrbutionAmount());
-                governmentContributionsDTO.setHdmfContributionAmount(governmentContributions.getHdmfContrbutionAmount());
-                governmentContributionsDTO.setPhilhealthContributionAmount(governmentContributions.getPhilhealthContributionAmount());
-                governmentContributionsDTO.setEmployeeDTO(employeeProfileService.getById(governmentContributions.getEmployee().getId()));
-                governmentContributionsDTO.setCreatedBy(governmentContributions.getCreatedBy());
-                governmentContributionsDTO.setDateAndTimeCreated(governmentContributions.getDateAndTimeCreated());
-                governmentContributionsDTO.setUpdatedBy(governmentContributions.getUpdatedBy());
-                governmentContributionsDTO.setDateAndTimeUpdated(governmentContributions.getDateAndTimeUpdated());
-
-                governmentContributionsDTOList.add(governmentContributionsDTO);
+                governmentContributionsDTOList.add(this.buildGovernmentContributionsDTO(governmentContributions));
             }
 
             logger.info(String.valueOf(governmentContributionsList.size()).concat(" record(s) found."));
@@ -140,21 +119,7 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
             logger.info("Employee's government contributions with parameter '%".concat(param).concat("%' has successfully retrieved."));
 
             for (GovernmentContributions governmentContributions : governmentContributionsList) {
-                AllowanceDTO allowanceDTO = new AllowanceDTO();
-
-                GovernmentContributionsDTO governmentContributionsDTO = new GovernmentContributionsDTO();
-
-                governmentContributionsDTO.setId(governmentContributions.getId());
-                governmentContributionsDTO.setSssContributionAmount(governmentContributions.getSssContrbutionAmount());
-                governmentContributionsDTO.setHdmfContributionAmount(governmentContributions.getHdmfContrbutionAmount());
-                governmentContributionsDTO.setPhilhealthContributionAmount(governmentContributions.getPhilhealthContributionAmount());
-                governmentContributionsDTO.setEmployeeDTO(employeeProfileService.getById(governmentContributions.getEmployee().getId()));
-                governmentContributionsDTO.setCreatedBy(governmentContributions.getCreatedBy());
-                governmentContributionsDTO.setDateAndTimeCreated(governmentContributions.getDateAndTimeCreated());
-                governmentContributionsDTO.setUpdatedBy(governmentContributions.getUpdatedBy());
-                governmentContributionsDTO.setDateAndTimeUpdated(governmentContributions.getDateAndTimeUpdated());
-
-                governmentContributionsDTOList.add(governmentContributionsDTO);
+                governmentContributionsDTOList.add(this.buildGovernmentContributionsDTO(governmentContributions));
             }
 
             logger.info(String.valueOf(governmentContributionsList.size()).concat(" record(s) found."));
@@ -170,20 +135,29 @@ public class GovernmentContributionsServiceImpl implements GovernmentContributio
 
         GovernmentContributions governmentContributions = governmentContributionsRepository
                 .findByEmployee(employeeProfileRepository.getReferenceById(employeeProfileDTO.getId()));
+        GovernmentContributionsDTO governmentContributionsDTO = this.buildGovernmentContributionsDTO(governmentContributions);
+
+        logger.info("Government contriibutions record with employee id "
+                .concat(employeeProfileDTO.getId().toString()).concat(" is successfully retrieved."));
+        return governmentContributionsDTO;
+    }
+
+    private GovernmentContributionsDTO buildGovernmentContributionsDTO(GovernmentContributions governmentContributions) {
         GovernmentContributionsDTO governmentContributionsDTO = new GovernmentContributionsDTO();
 
         governmentContributionsDTO.setId(governmentContributions.getId());
         governmentContributionsDTO.setSssContributionAmount(governmentContributions.getSssContrbutionAmount());
+        governmentContributionsDTO.setSssContributionCutOff(governmentContributions.getSssContributionCutOff());
         governmentContributionsDTO.setHdmfContributionAmount(governmentContributions.getHdmfContrbutionAmount());
+        governmentContributionsDTO.setHdmfContributionCutOff(governmentContributions.getHdmfContributionCutOff());
         governmentContributionsDTO.setPhilhealthContributionAmount(governmentContributions.getPhilhealthContributionAmount());
+        governmentContributionsDTO.setPhilhealthContributionCutOff(governmentContributions.getPhilhealthContributionCutOff());
         governmentContributionsDTO.setEmployeeDTO(employeeProfileService.getById(governmentContributions.getEmployee().getId()));
         governmentContributionsDTO.setCreatedBy(governmentContributions.getCreatedBy());
         governmentContributionsDTO.setDateAndTimeCreated(governmentContributions.getDateAndTimeCreated());
         governmentContributionsDTO.setUpdatedBy(governmentContributions.getUpdatedBy());
         governmentContributionsDTO.setDateAndTimeUpdated(governmentContributions.getDateAndTimeUpdated());
 
-        logger.info("Government contriibutions record with employee id "
-                .concat(employeeProfileDTO.getId().toString()).concat(" is successfully retrieved."));
         return governmentContributionsDTO;
     }
 }

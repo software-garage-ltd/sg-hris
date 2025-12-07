@@ -202,11 +202,25 @@ public class PayrollGeneratorView extends VerticalLayout {
                                     cutOffToDatePicker.getValue());
 
                     // Get the employee's government contributions.
+                    Integer cutOffDay = cutOffToDatePicker.getValue().getDayOfMonth() <= 15 ? 1 : 2;
+
                     GovernmentContributionsDTO governmentContributionsDTO = governmentContributionsService
                             .findByEmployeeProfileDTO(employeeProfileComboBox.getValue());
-                    BigDecimal sssDeductionAmount = governmentContributionsDTO.getSssContributionAmount();
-                    BigDecimal hdmfDeductionAmount = governmentContributionsDTO.getHdmfContributionAmount();
-                    BigDecimal philhealthDeductionAmount = governmentContributionsDTO.getPhilhealthContributionAmount();
+
+                    BigDecimal sssDeductionAmount = cutOffDay
+                            .equals(governmentContributionsDTO.getSssContributionCutOff())
+                            ? governmentContributionsDTO.getSssContributionAmount()
+                            : BigDecimal.ZERO;
+
+                    BigDecimal hdmfDeductionAmount = cutOffDay
+                            .equals(governmentContributionsDTO.getHdmfContributionCutOff())
+                            ? governmentContributionsDTO.getHdmfContributionAmount()
+                            : BigDecimal.ZERO;
+
+                    BigDecimal philhealthDeductionAmount = cutOffDay
+                            .equals(governmentContributionsDTO.getPhilhealthContributionCutOff())
+                            ? governmentContributionsDTO.getPhilhealthContributionAmount()
+                            : BigDecimal.ZERO;
 
                     // Get the employee's loan
                     BigDecimal totalLoanDeductionAmount = payrollCalculatorService
