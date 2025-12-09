@@ -30,8 +30,11 @@ public class LoanDeduction extends BaseEntity {
     @Column(name = "loan_end_date", nullable = false)
     private LocalDate loanEndDate;
 
-    @Column(name = "monthly_deduction")
+    @Column(name = "monthly_deduction", nullable = false)
     private BigDecimal monthlyDeduction;
+
+    @Column(name = "loan_cutoff", nullable = false)
+    private Integer loanCutOff;
 
     public EmployeeProfile getEmployee() {
         return employeeProfile;
@@ -87,5 +90,13 @@ public class LoanDeduction extends BaseEntity {
 
     public void setMonthlyDeduction(BigDecimal monthlyDeduction) {
         this.monthlyDeduction = monthlyDeduction;
+    }
+
+    public Integer getLoanCutOff() {
+        return loanCutOff;
+    }
+
+    public void setLoanCutOff(Integer loanCutOff) {
+        this.loanCutOff = loanCutOff;
     }
 }

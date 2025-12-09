@@ -257,7 +257,9 @@ public class EmployeePayrollDetailsView extends VerticalLayout implements HasUrl
 
         H4 headerWithholdingTax = new H4("Withholding Tax: PHP ".concat(payrollDTO.getWithholdingTaxDeductionAmount().toString()));
 
-        BigDecimal netPayAmount = payrollDTO.getTotalGrossPayAmount().subtract(payrollDTO.getTotalDeductionAmount());
+        BigDecimal netPayAmount = payrollDTO.getTotalGrossPayAmount()
+                .subtract(payrollDTO.getTotalDeductionAmount())
+                .subtract(payrollDTO.getWithholdingTaxDeductionAmount());
 
         H4 headerNetPay = new H4("Net Pay: PHP ".concat(netPayAmount.toString()));
 
