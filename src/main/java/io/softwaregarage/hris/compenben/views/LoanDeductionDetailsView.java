@@ -114,6 +114,12 @@ public class LoanDeductionDetailsView extends VerticalLayout implements HasUrlPa
         Span monthlyDeductionValueSpan = new Span("PHP " + loanDeductionDTO.getMonthlyDeduction());
         monthlyDeductionValueSpan.getStyle().setFontWeight("bold");
 
+        Span loanCutOffLabelSpan = new Span("Loan Cut Off");
+        loanCutOffLabelSpan.getStyle().set("text-align", "right");
+
+        Span loanCutOffValueSpan = new Span(loanDeductionDTO.getLoanCutOff() == 1 ? "1st Cut-Off" : "2nd Cut-Off");
+        loanCutOffValueSpan.getStyle().setFontWeight("bold");
+
         loanDeductionDetailsLayout.add(employeeNoLabelSpan,
                                         employeeNoValueSpan,
                                         employeeNameLabelSpan,
@@ -129,7 +135,9 @@ public class LoanDeductionDetailsView extends VerticalLayout implements HasUrlPa
                                         loanAmountLabelSpan,
                                         loanAmountValueSpan,
                                         monthlyDeductionLabelSpan,
-                                        monthlyDeductionValueSpan);
+                                        monthlyDeductionValueSpan,
+                                        loanCutOffLabelSpan,
+                                        loanCutOffValueSpan);
         loanDeductionDetailsLayout.setWidth("720px");
     }
 }

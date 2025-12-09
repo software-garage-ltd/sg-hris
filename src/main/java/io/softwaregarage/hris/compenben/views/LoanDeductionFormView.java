@@ -11,6 +11,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
@@ -47,6 +48,7 @@ public class LoanDeductionFormView extends VerticalLayout implements HasUrlParam
     private TextField loanDescriptionTextField;
     private DatePicker loanStartDatePicker, loanEndDatePicker;
     private BigDecimalField loanAmountField, monthlyDeductionField;
+    private RadioButtonGroup<Integer> loanCutOffRadioButtonGroup;
 
     public LoanDeductionFormView(LoanDeductionService loanDeductionService,
                                  EmployeeProfileService employeeProfileService) {
@@ -126,6 +128,19 @@ public class LoanDeductionFormView extends VerticalLayout implements HasUrlParam
         monthlyDeductionField.setPrefixComponent(new Span("PHP "));
         if (loanDeductionDTO != null) monthlyDeductionField.setValue(loanDeductionDTO.getMonthlyDeduction());
 
+        loanCutOffRadioButtonGroup = new RadioButtonGroup<>("Loan Cut-Off");
+        loanCutOffRadioButtonGroup.setItems(1, 2);
+        loanCutOffRadioButtonGroup.setItemLabelGenerator(integer -> {
+            switch (integer) {
+                case 1: return "1st Cut-Off";
+                case 2: return "2nd Cut-Off";
+                default: return "Unknown";
+            }
+        });
+        loanCutOffRadioButtonGroup.setRequired(true);
+        loanCutOffRadioButtonGroup.setRequiredIndicatorVisible(true);
+        if (loanDeductionDTO != null) loanCutOffRadioButtonGroup.setValue(loanDeductionDTO.getLoanCutOff());
+
 
         Button saveButton = new Button("Save");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -151,6 +166,7 @@ public class LoanDeductionFormView extends VerticalLayout implements HasUrlParam
                                         loanEndDatePicker,
                                         loanAmountField,
                                         monthlyDeductionField,
+                                        loanCutOffRadioButtonGroup,
                                         buttonLayout);
         loanDeductionsDTOFormLayout.setColspan(employeeDTOComboBox, 2);
         loanDeductionsDTOFormLayout.setColspan(buttonLayout, 2);
@@ -174,6 +190,7 @@ public class LoanDeductionFormView extends VerticalLayout implements HasUrlParam
         loanDeductionDTO.setLoanEndDate(loanEndDatePicker.getValue());
         loanDeductionDTO.setLoanAmount(loanAmountField.getValue());
         loanDeductionDTO.setMonthlyDeduction(monthlyDeductionField.getValue());
+        loanDeductionDTO.setLoanCutOff(loanCutOffRadioButtonGroup.getValue());
         loanDeductionDTO.setUpdatedBy(loggedInUser);
 
         loanDeductionService.saveOrUpdate(loanDeductionDTO);

@@ -66,7 +66,10 @@ public class GovernmentContributionsDetailsView extends VerticalLayout implement
                                                        .concat(governmentContributionsDTO.getEmployeeDTO().getMiddleName())
                                                        .concat(" ")
                                                        .concat(governmentContributionsDTO.getEmployeeDTO().getLastName())
-                                                       .concat(governmentContributionsDTO.getEmployeeDTO().getSuffix() != null ? " ".concat(governmentContributionsDTO.getEmployeeDTO().getSuffix()) : "");
+                                                       .concat(governmentContributionsDTO.getEmployeeDTO().getSuffix() != null
+                                                               ? " ".concat(governmentContributionsDTO
+                                                                                .getEmployeeDTO().getSuffix())
+                                                               : "");
 
         Span employeeNameValueSpan = new Span(employeeName);
         employeeNameValueSpan.getStyle().setFontWeight("bold");

@@ -583,9 +583,13 @@ public class PayrollCalculatorService {
                     })
                     .toList();
 
+            // Get the loan cut off
+            Integer cutOffDay = toDate.getDayOfMonth() <= 15 ? 1 : 2;
+
             for (LoanDeductionDTO loan : activeLoans) {
-                // If payroll is semi-monthly, divide deduction by 2
-                BigDecimal deductionPerCutoff = loan.getMonthlyDeduction().divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+                BigDecimal deductionPerCutoff = cutOffDay.equals(loan.getLoanCutOff())
+                        ? loan.getMonthlyDeduction()
+                        : BigDecimal.ZERO;
 
                 totalLoanDeduction = totalLoanDeduction.add(deductionPerCutoff);
             }
@@ -595,36 +599,39 @@ public class PayrollCalculatorService {
     }
 
     public BigDecimal computeWithholdingTax(BigDecimal totalGrossPayAmount,
-                                            BigDecimal totalDeductionAmount) {
+                                            BigDecimal totalDeductionAmount,
+                                            int cutOffsPerYear) {
         // Step 1: Compute taxable income for the cutoff
-        BigDecimal taxableIncome = totalGrossPayAmount.subtract(totalDeductionAmount);
-        if (taxableIncome.compareTo(BigDecimal.ZERO) <= 0) {
-            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
-        }
+        BigDecimal taxableIncomePerCutOff = totalGrossPayAmount.subtract(totalDeductionAmount);
 
         BigDecimal withholdingTax = BigDecimal.ZERO;
 
-        // Step 2: Get active tax rates for the current year (already adjusted for cutoff frequency)
+        // Step 2: Annualize taxable income
+        BigDecimal annualTaxableIncome = taxableIncomePerCutOff.multiply(BigDecimal.valueOf(cutOffsPerYear));
+
+        // Step 3: Get active tax rates for the current year (annual brackets)
         List<TaxRatesDTO> taxRates = taxRatesService.getTaxRatesByYear(LocalDate.now().getYear())
                 .stream()
                 .filter(TaxRatesDTO::isActiveTaxRate)
                 .sorted(Comparator.comparing(TaxRatesDTO::getLowerBoundAmount))
                 .toList();
 
-        // Step 3: Find the bracket where taxable income falls
+        // Step 4: Find the bracket where annual taxable income falls
         for (TaxRatesDTO bracket : taxRates) {
             boolean withinCeiling = bracket.getUpperBoundAmount() == null
-                    || taxableIncome.compareTo(bracket.getUpperBoundAmount()) <= 0;
+                    || annualTaxableIncome.compareTo(bracket.getUpperBoundAmount()) <= 0;
 
-            if (taxableIncome.compareTo(bracket.getLowerBoundAmount()) >= 0 && withinCeiling) {
-                BigDecimal excess = taxableIncome.subtract(bracket.getLowerBoundAmount());
-                withholdingTax = bracket.getBaseTax().add(excess.multiply(bracket.getRate()));
+            if (annualTaxableIncome.compareTo(bracket.getLowerBoundAmount()) >= 0 && withinCeiling) {
+                BigDecimal excess = annualTaxableIncome.subtract(bracket.getLowerBoundAmount());
+                BigDecimal annualTax = bracket.getBaseTax().add(excess.multiply(bracket.getRate()));
+
+                // Step 5: Convert back to cut-off tax
+                withholdingTax = annualTax.divide(BigDecimal.valueOf(cutOffsPerYear), 2, RoundingMode.HALF_UP);
                 break;
             }
         }
 
-        // Step 4: Return rounded value
-        return withholdingTax.setScale(2, RoundingMode.HALF_UP);
+        return withholdingTax;
     }
 
 }
