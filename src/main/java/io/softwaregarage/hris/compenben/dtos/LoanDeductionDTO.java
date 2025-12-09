@@ -14,6 +14,7 @@ public class LoanDeductionDTO extends BaseDTO {
     private LocalDate loanStartDate;
     private LocalDate loanEndDate;
     private BigDecimal monthlyDeduction;
+    private Integer loanCutOff;
 
     public EmployeeProfileDTO getEmployeeDTO() {
         return employeeProfileDTO;
@@ -69,5 +70,13 @@ public class LoanDeductionDTO extends BaseDTO {
 
     public void setMonthlyDeduction(BigDecimal monthlyDeduction) {
         this.monthlyDeduction = monthlyDeduction;
+    }
+
+    public Integer getLoanCutOff() {
+        return loanCutOff;
+    }
+
+    public void setLoanCutOff(Integer loanCutOff) {
+        this.loanCutOff = loanCutOff;
     }
 }

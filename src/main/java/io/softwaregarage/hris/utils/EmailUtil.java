@@ -167,7 +167,8 @@ public class EmailUtil {
                     amountFormat.format(payrollDTO.getWithholdingTaxDeductionAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${totalNetPay}",
                     amountFormat.format(payrollDTO.getTotalGrossPayAmount()
-                            .subtract(payrollDTO.getTotalDeductionAmount())));
+                            .subtract(payrollDTO.getTotalDeductionAmount())
+                            .subtract(payrollDTO.getWithholdingTaxDeductionAmount())));
 
             // Set the email's content to be the HTML template and send.
             mimeMessage.setContent(employeePayslipTemplate, "text/html; charset=utf-8");

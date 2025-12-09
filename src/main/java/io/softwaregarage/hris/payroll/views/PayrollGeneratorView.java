@@ -236,7 +236,7 @@ public class PayrollGeneratorView extends VerticalLayout {
 
                     // Get the employee's withholding tax
                     BigDecimal withHoldingTaxDeduction = payrollCalculatorService
-                            .computeWithholdingTax(totalGrossPayAmount, totalDeductionsAmount);
+                            .computeWithholdingTax(totalGrossPayAmount, totalDeductionsAmount, 24);
 
                     PayrollDTO payrollDTO = new PayrollDTO();
                     payrollDTO.setEmployeeDTO(employeeProfileComboBox.getValue());

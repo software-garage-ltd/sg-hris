@@ -188,7 +188,7 @@ public class EmployeePayrollFormView extends VerticalLayout implements HasUrlPar
             // Recompute the values after entering the values in the adjustment pay field.
             BigDecimal totalGrossPay = totalGrossPayAmount.add(adjustmentPayAmount);
             BigDecimal totalNetPay = totalGrossPay.subtract(totalDeductionAmount);
-            BigDecimal withholdingTaxPay = payrollCalculatorService.computeWithholdingTax(totalGrossPay, totalDeductionAmount);
+            BigDecimal withholdingTaxPay = payrollCalculatorService.computeWithholdingTax(totalGrossPay, totalDeductionAmount, 24);
 
             totalGrossPayField.setValue(totalGrossPay);
             totalNetPayField.setValue(totalNetPay);
@@ -229,7 +229,7 @@ public class EmployeePayrollFormView extends VerticalLayout implements HasUrlPar
             // Recompute the values after entering the values in the adjustment pay field.
             BigDecimal totalDeductionAmount = totalDeduction.add(otherDeduction);
             BigDecimal totalNetPay = totalGrossPay.subtract(totalDeductionAmount);
-            BigDecimal withholdingTaxPay = payrollCalculatorService.computeWithholdingTax(totalGrossPay, totalDeductionAmount);
+            BigDecimal withholdingTaxPay = payrollCalculatorService.computeWithholdingTax(totalGrossPay, totalDeductionAmount, 24);
 
             totalDeductionField.setValue(totalDeductionAmount);
             totalNetPayField.setValue(totalNetPay);
@@ -248,7 +248,7 @@ public class EmployeePayrollFormView extends VerticalLayout implements HasUrlPar
         totalNetPayField = new BigDecimalField("Total Net Pay");
         totalNetPayField.setReadOnly(true);
         if (payrollDTO != null) totalNetPayField.setValue(payrollDTO.getTotalGrossPayAmount()
-                .subtract(payrollDTO.getTotalDeductionAmount()));
+                .subtract(payrollDTO.getTotalDeductionAmount()).subtract(payrollDTO.getWithholdingTaxDeductionAmount()));
 
         withholdingTaxField = new BigDecimalField("Withholding Tax");
         withholdingTaxField.setReadOnly(true);
