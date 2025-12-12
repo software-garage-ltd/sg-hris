@@ -10,7 +10,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.softwaregarage.hris.payroll.dtos.RatesDTO;
-import io.softwaregarage.hris.compenben.services.AllowanceService;
 import io.softwaregarage.hris.payroll.services.RatesService;
 import io.softwaregarage.hris.commons.views.MainLayout;
 
@@ -29,17 +28,12 @@ public class RatesDetailsView extends VerticalLayout implements HasUrlParameter<
     @Resource
     private final RatesService ratesService;
 
-    @Resource
-    private final AllowanceService allowanceService;
-
     private RatesDTO ratesDTO;
 
     private final FormLayout ratesDetailsLayout = new FormLayout();
 
-    public RatesDetailsView(RatesService ratesService,
-                            AllowanceService allowanceService) {
+    public RatesDetailsView(RatesService ratesService) {
         this.ratesService = ratesService;
-        this.allowanceService = allowanceService;
 
         add(ratesDetailsLayout);
 
@@ -85,12 +79,6 @@ public class RatesDetailsView extends VerticalLayout implements HasUrlParameter<
         Span isCurrentRatesValueSpan = new Span(ratesDTO.getRateType());
         isCurrentRatesValueSpan.getStyle().setFontWeight("bold");
 
-        Span monthlyAllowanceRateLabelSpan = new Span("Total Monthly Allowance");
-        monthlyAllowanceRateLabelSpan.getStyle().set("text-align", "right");
-
-        Span monthlyAllowanceRateValueSpan = new Span("PHP ".concat(String.valueOf(allowanceService.getSumOfAllowanceByEmployeeDTO(ratesDTO.getEmployeeDTO()))));
-        monthlyAllowanceRateValueSpan.getStyle().setFontWeight("bold");
-
         Span basicRateLabelSpan = new Span("Basic Rate");
         basicRateLabelSpan.getStyle().set("text-align", "right");
 
@@ -131,8 +119,6 @@ public class RatesDetailsView extends VerticalLayout implements HasUrlParameter<
                             employeeNoValueSpan,
                             employeeNameLabelSpan,
                             employeeNameValueSpan,
-                            monthlyAllowanceRateLabelSpan,
-                            monthlyAllowanceRateValueSpan,
                             basicRateLabelSpan,
                             basicRateValueSpan,
                             dailyRateLabelSpan,

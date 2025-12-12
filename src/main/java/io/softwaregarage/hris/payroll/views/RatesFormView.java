@@ -23,7 +23,6 @@ import io.softwaregarage.hris.attendance.dtos.EmployeeShiftScheduleDTO;
 import io.softwaregarage.hris.attendance.services.EmployeeShiftScheduleService;
 import io.softwaregarage.hris.payroll.dtos.RatesDTO;
 import io.softwaregarage.hris.profile.dtos.EmployeeProfileDTO;
-import io.softwaregarage.hris.compenben.services.AllowanceService;
 import io.softwaregarage.hris.payroll.services.RatesService;
 import io.softwaregarage.hris.profile.services.EmployeeProfileService;
 import io.softwaregarage.hris.utils.SecurityUtil;
@@ -33,6 +32,7 @@ import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -51,9 +51,6 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
     private final EmployeeProfileService employeeProfileService;
 
     @Resource
-    private final AllowanceService allowanceService;
-
-    @Resource
     private final EmployeeShiftScheduleService employeeShiftScheduleService;
 
     private RatesDTO ratesDTO;
@@ -63,8 +60,7 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
     private final FormLayout ratesDTOFormLayout = new FormLayout();
     private ComboBox<EmployeeProfileDTO> employeeDTOComboBox;
     private RadioButtonGroup<String> rateTypeRadioButtonGroup;
-    private BigDecimalField totalMonthlyAllowanceDecimalField,
-                            basicRateDecimalField,
+    private BigDecimalField basicRateDecimalField,
                             dailyRateDecimalField,
                             hourlyRateDecimalField,
                             overtimeHourlyRateDecimalField,
@@ -73,11 +69,9 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
 
     public RatesFormView(RatesService ratesService,
                          EmployeeProfileService employeeProfileService,
-                         AllowanceService allowanceService,
                          EmployeeShiftScheduleService employeeShiftScheduleService) {
         this.ratesService = ratesService;
         this.employeeProfileService = employeeProfileService;
-        this.allowanceService = allowanceService;
         this.employeeShiftScheduleService = employeeShiftScheduleService;
 
         loggedInUser = Objects.requireNonNull(SecurityUtil.getAuthenticatedUser()).getUsername();
@@ -118,13 +112,6 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
         rateTypeRadioButtonGroup.setRequiredIndicatorVisible(true);
         rateTypeRadioButtonGroup.setRequired(true);
         if (ratesDTO != null) rateTypeRadioButtonGroup.setValue(ratesDTO.getRateType());
-
-        totalMonthlyAllowanceDecimalField = new BigDecimalField("Total Monthly Allowance");
-        totalMonthlyAllowanceDecimalField.setPlaceholder("0.00");
-        totalMonthlyAllowanceDecimalField.setHelperText("Value will automatically get from the selected employee.");
-        totalMonthlyAllowanceDecimalField.setPrefixComponent(new Span("PHP"));
-        totalMonthlyAllowanceDecimalField.setReadOnly(true);
-        if (ratesDTO != null) totalMonthlyAllowanceDecimalField.setValue(allowanceService.getSumOfAllowanceByEmployeeDTO(employeeDTOComboBox.getValue()));
 
         basicRateDecimalField = new BigDecimalField("Basic Rate");
         basicRateDecimalField.setPlaceholder("0.00");
@@ -169,17 +156,6 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
         absentDailyRateDecimalField.setReadOnly(true);
         if (ratesDTO != null) absentDailyRateDecimalField.setValue(ratesDTO.getDailyAbsentDeductionRate());
 
-        // Do the auto-compute of fields from the selected value of employee's combobox.
-        employeeDTOComboBox.addValueChangeListener(event -> {
-            EmployeeProfileDTO employeeProfileDTO = event.getValue();
-
-            if (employeeProfileDTO != null) {
-                totalMonthlyAllowanceDecimalField.setValue(allowanceService.getSumOfAllowanceByEmployeeDTO(employeeProfileDTO));
-            } else {
-                totalMonthlyAllowanceDecimalField.clear();
-            }
-        });
-
         basicRateDecimalField.addValueChangeListener(event -> {
             BigDecimal monthlySalaryRate = event.getValue();
 
@@ -187,23 +163,16 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
             long noOfDaystoWork = 0;
             List<EmployeeShiftScheduleDTO> employeeShiftScheduleDTOList = employeeShiftScheduleService
                     .getEmployeeShiftScheduleByEmployeeDTO(employeeDTOComboBox.getValue());
-            EmployeeShiftScheduleDTO  employeeShiftScheduleDTO = employeeShiftScheduleDTOList.stream()
-                    .filter(shiftSchedule -> shiftSchedule.isActiveShift())
+            EmployeeShiftScheduleDTO employeeShiftScheduleDTO = employeeShiftScheduleDTOList.stream()
+                    .filter(EmployeeShiftScheduleDTO::isActiveShift)
                     .findFirst()
                     .get();
             noOfDaystoWork = employeeShiftScheduleDTO.getShiftScheduledDays().split(", ").length;
 
             // Populate the computed values in each field.
             if (monthlySalaryRate != null) {
-                if (totalMonthlyAllowanceDecimalField.getValue() != null) {
-                    totalMonthlyAllowanceDecimalField.getValue();
-                } else {
-                    totalMonthlyAllowanceDecimalField.setValue(BigDecimal.ZERO);
-                }
-
-                BigDecimal totalMonthlySalaryRate = monthlySalaryRate;
-                BigDecimal dailySalaryRate = totalMonthlySalaryRate.divide(new BigDecimal(noOfDaystoWork == 5 ? "22" : "26"), 2, BigDecimal.ROUND_HALF_UP);
-                BigDecimal hourlySalaryRate = dailySalaryRate.divide(new BigDecimal("8"), 2, BigDecimal.ROUND_HALF_UP);
+                BigDecimal dailySalaryRate = monthlySalaryRate.divide(new BigDecimal(noOfDaystoWork == 5 ? "22" : "26"), 2, RoundingMode.HALF_UP);
+                BigDecimal hourlySalaryRate = dailySalaryRate.divide(new BigDecimal("8"), 2, RoundingMode.HALF_UP);
 
                 dailyRateDecimalField.setValue(dailySalaryRate);
                 hourlyRateDecimalField.setValue(hourlySalaryRate);
@@ -239,7 +208,6 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
 
         ratesDTOFormLayout.add(employeeDTOComboBox,
                                rateTypeRadioButtonGroup,
-                               totalMonthlyAllowanceDecimalField,
                                basicRateDecimalField,
                                dailyRateDecimalField,
                                hourlyRateDecimalField,
@@ -247,7 +215,6 @@ public class RatesFormView extends VerticalLayout implements HasUrlParameter<Str
                                lateHourlyRateDecimalField,
                                absentDailyRateDecimalField,
                                buttonLayout);
-        ratesDTOFormLayout.setColspan(employeeDTOComboBox, 2);
         ratesDTOFormLayout.setColspan(buttonLayout, 2);
         ratesDTOFormLayout.setMaxWidth("720px");
     }

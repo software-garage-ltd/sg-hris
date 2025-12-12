@@ -105,11 +105,17 @@ public class EmployeePayrollDetailsView extends VerticalLayout implements HasUrl
         Span overtimePayValueSpan = new Span("PHP ".concat(String.valueOf(payrollDTO.getOvertimePayAmount())));
         overtimePayValueSpan.getStyle().setFontWeight("bold");
 
-        Span allowancePayLabelSpan = new Span("Allowance Pay");
-        allowancePayLabelSpan.getStyle().set("text-align", "right");
+        Span taxableAllowancePayLabelSpan = new Span("Taxable Allowance Pay");
+        taxableAllowancePayLabelSpan.getStyle().set("text-align", "right");
 
-        Span allowancePayValueSpan = new Span("PHP ".concat(String.valueOf(payrollDTO.getAllowancePayAmount())));
-        allowancePayValueSpan.getStyle().setFontWeight("bold");
+        Span taxableAllowancePayValueSpan = new Span("PHP ".concat(String.valueOf(payrollDTO.getTaxableAllowancePayAmount())));
+        taxableAllowancePayValueSpan.getStyle().setFontWeight("bold");
+
+        Span nonTaxableAllowancePayLabelSpan = new Span("Non-Taxable Allowance Pay");
+        nonTaxableAllowancePayLabelSpan.getStyle().set("text-align", "right");
+
+        Span nonTaxableallowancePayValueSpan = new Span("PHP ".concat(String.valueOf(payrollDTO.getNonTaxableAllowancePayAmount())));
+        nonTaxableallowancePayValueSpan.getStyle().setFontWeight("bold");
 
         Span restDayPayLabelSpan = new Span("Rest Day Pay");
         restDayPayLabelSpan.getStyle().set("text-align", "right");
@@ -212,8 +218,10 @@ public class EmployeePayrollDetailsView extends VerticalLayout implements HasUrl
                 basicPayValueSpan,
                 overtimePayLabelSpan,
                 overtimePayValueSpan,
-                allowancePayLabelSpan,
-                allowancePayValueSpan,
+                taxableAllowancePayLabelSpan,
+                taxableAllowancePayValueSpan,
+                nonTaxableAllowancePayLabelSpan,
+                nonTaxableallowancePayValueSpan,
                 restDayPayLabelSpan,
                 restDayPayValueSpan,
                 nightDifferentialPayLabelSpan,

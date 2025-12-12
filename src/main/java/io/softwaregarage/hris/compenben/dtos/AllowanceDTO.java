@@ -10,6 +10,8 @@ public class AllowanceDTO extends BaseDTO {
     private String allowanceType;
     private BigDecimal allowanceAmount;
     private EmployeeProfileDTO employeeProfileDTO;
+    private boolean taxable;
+    private Integer allowanceCutOff;
 
     public String getAllowanceCode() {
         return allowanceCode;
@@ -41,5 +43,21 @@ public class AllowanceDTO extends BaseDTO {
 
     public void setEmployeeDTO(EmployeeProfileDTO employeeProfileDTO) {
         this.employeeProfileDTO = employeeProfileDTO;
+    }
+
+    public boolean isTaxable() {
+        return taxable;
+    }
+
+    public void setTaxable(boolean taxable) {
+        this.taxable = taxable;
+    }
+
+    public Integer getAllowanceCutOff() {
+        return allowanceCutOff;
+    }
+
+    public void setAllowanceCutOff(Integer allowanceCutOff) {
+        this.allowanceCutOff = allowanceCutOff;
     }
 }

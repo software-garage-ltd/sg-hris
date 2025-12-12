@@ -12,7 +12,8 @@ public class PayrollDTO extends BaseDTO {
     private LocalDate cutOffToDate;
     private BigDecimal basicPayAmount;
     private BigDecimal overtimePayAmount;
-    private BigDecimal allowancePayAmount;
+    private BigDecimal taxableAllowancePayAmount;
+    private BigDecimal nonTaxableAllowancePayAmount;
     private BigDecimal absentDeductionAmount;
     private BigDecimal lateOrUndertimeDeductionAmount;
     private BigDecimal restDayPayAmount;
@@ -71,12 +72,20 @@ public class PayrollDTO extends BaseDTO {
         this.overtimePayAmount = overtimePayAmount;
     }
 
-    public BigDecimal getAllowancePayAmount() {
-        return allowancePayAmount;
+    public BigDecimal getTaxableAllowancePayAmount() {
+        return taxableAllowancePayAmount;
     }
 
-    public void setAllowancePayAmount(BigDecimal allowancePayAmount) {
-        this.allowancePayAmount = allowancePayAmount;
+    public void setTaxableAllowancePayAmount(BigDecimal taxableAllowancePayAmount) {
+        this.taxableAllowancePayAmount = taxableAllowancePayAmount;
+    }
+
+    public BigDecimal getNonTaxableAllowancePayAmount() {
+        return nonTaxableAllowancePayAmount;
+    }
+
+    public void setNonTaxableAllowancePayAmount(BigDecimal nonTaxableAllowancePayAmount) {
+        this.nonTaxableAllowancePayAmount = nonTaxableAllowancePayAmount;
     }
 
     public BigDecimal getAbsentDeductionAmount() {

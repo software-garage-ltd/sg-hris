@@ -2,6 +2,7 @@ package io.softwaregarage.hris.compenben.repositories;
 
 import io.softwaregarage.hris.compenben.entities.Allowance;
 import io.softwaregarage.hris.profile.entities.EmployeeProfile;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,8 +19,8 @@ public interface AllowanceRepository extends JpaRepository<Allowance, UUID> {
            OR LOWER(a.employeeProfile.middleName) LIKE LOWER(CONCAT('%', :param, '%'))
            OR LOWER(a.employeeProfile.lastName) LIKE LOWER(CONCAT('%', :param, '%'))
            """)
-    public List<Allowance> findByStringParameter(@Param("param") String parameter);
+    List<Allowance> findByStringParameter(@Param("param") String parameter);
 
-    @Query("SELECT SUM(a.allowanceAmount) FROM Allowance a WHERE a.employeeProfile = :param")
-    public Object findSumOfAllowanceByEmployee(@Param("param") EmployeeProfile employeeProfile);
+    @Query("SELECT a FROM Allowance a WHERE a.employeeProfile = :param")
+    List<Allowance> findAllowanceByEmployee(@Param("param") EmployeeProfile employeeProfile);
 }
