@@ -161,6 +161,7 @@ public class EmployeePayrollListView extends VerticalLayout {
         payrollDTOGrid.addColumn(payrollDTO -> "PHP " + payrollDTO.getWithholdingTaxDeductionAmount())
                 .setHeader("Withholding Tax");
         payrollDTOGrid.addColumn(payrollDTO -> "PHP " + payrollDTO.getTotalGrossPayAmount()
+                        .add(payrollDTO.getNonTaxableAllowancePayAmount())
                         .subtract(payrollDTO.getTotalDeductionAmount())
                         .subtract(payrollDTO.getWithholdingTaxDeductionAmount()))
                 .setHeader("Total Net Amount");

@@ -23,6 +23,12 @@ public class Allowance extends BaseEntity {
     @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = false)
     private EmployeeProfile employeeProfile;
 
+    @Column(name = "allowance_is_taxable", nullable = false)
+    private boolean taxable;
+
+    @Column(name = "allowance_cut_off", nullable = false)
+    private Integer allowanceCutOff;
+
     public String getAllowanceCode() {
         return allowanceCode;
     }
@@ -53,5 +59,21 @@ public class Allowance extends BaseEntity {
 
     public void setEmployee(EmployeeProfile employeeProfile) {
         this.employeeProfile = employeeProfile;
+    }
+
+    public boolean isTaxable() {
+        return taxable;
+    }
+
+    public void setTaxable(boolean taxable) {
+        this.taxable = taxable;
+    }
+
+    public Integer getAllowanceCutOff() {
+        return allowanceCutOff;
+    }
+
+    public void setAllowanceCutOff(Integer allowanceCutOff) {
+        this.allowanceCutOff = allowanceCutOff;
     }
 }

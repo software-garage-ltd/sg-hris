@@ -28,8 +28,11 @@ public class Payroll extends BaseEntity {
     @Column(name = "overtime_pay_amount", nullable = false)
     private BigDecimal overtimePayAmount;
 
-    @Column(name = "allowance_pay_amount", nullable = false)
-    private BigDecimal allowancePayAmount;
+    @Column(name = "taxable_allowance_pay_amount", nullable = false)
+    private BigDecimal taxableAllowancePayAmount;
+
+    @Column(name = "non_taxable_allowance_pay_amount", nullable = false)
+    private BigDecimal nonTaxableAllowancePayAmount;
 
     @Column(name = "absent_deduction_amount", nullable = false)
     private BigDecimal absentDeductionAmount;
@@ -122,12 +125,20 @@ public class Payroll extends BaseEntity {
         this.overtimePayAmount = overtimePayAmount;
     }
 
-    public BigDecimal getAllowancePayAmount() {
-        return allowancePayAmount;
+    public BigDecimal getTaxableAllowancePayAmount() {
+        return taxableAllowancePayAmount;
     }
 
-    public void setAllowancePayAmount(BigDecimal allowancePayAmount) {
-        this.allowancePayAmount = allowancePayAmount;
+    public void setTaxableAllowancePayAmount(BigDecimal taxableAllowancePayAmount) {
+        this.taxableAllowancePayAmount = taxableAllowancePayAmount;
+    }
+
+    public BigDecimal getNonTaxableAllowancePayAmount() {
+        return nonTaxableAllowancePayAmount;
+    }
+
+    public void setNonTaxableAllowancePayAmount(BigDecimal nonTaxableAllowancePayAmount) {
+        this.nonTaxableAllowancePayAmount = nonTaxableAllowancePayAmount;
     }
 
     public BigDecimal getAbsentDeductionAmount() {

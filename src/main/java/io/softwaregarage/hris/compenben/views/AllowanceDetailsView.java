@@ -89,6 +89,18 @@ public class AllowanceDetailsView extends VerticalLayout implements HasUrlParame
         Span allowanceAmountValueSpan = new Span("PHP" + allowanceDTO.getAllowanceAmount());
         allowanceAmountValueSpan.getStyle().setFontWeight("bold");
 
+        Span allowanceTaxableLabelSpan = new Span("Is Taxable?");
+        allowanceTaxableLabelSpan.getStyle().set("text-align", "right");
+
+        Span allowancetaxableValueSpan = new Span(allowanceDTO.isTaxable() ? "Yes" : "No");
+        allowancetaxableValueSpan.getStyle().setFontWeight("bold");
+
+        Span allowanceCutOffLabelSpan = new Span("Cut-Off");
+        allowanceCutOffLabelSpan.getStyle().set("text-align", "right");
+
+        Span allowanceCutOffValueSpan = new Span(allowanceDTO.getAllowanceCutOff().equals(1) ? "1st Cut-Off" : "2nd Cut-Off");
+        allowanceCutOffValueSpan.getStyle().setFontWeight("bold");
+
         allowanceDetailsLayout.add(employeeNoLabelSpan,
                 employeeNoValueSpan,
                 employeeNameLabelSpan,
@@ -98,7 +110,11 @@ public class AllowanceDetailsView extends VerticalLayout implements HasUrlParame
                 allowanceTypeLabelSpan,
                 allowanceTypeValueSpan,
                 allowanceAmountLabelSpan,
-                allowanceAmountValueSpan);
+                allowanceAmountValueSpan,
+                allowanceTaxableLabelSpan,
+                allowancetaxableValueSpan,
+                allowanceCutOffLabelSpan,
+                allowanceCutOffValueSpan);
         allowanceDetailsLayout.setWidth("720px");
     }
 }

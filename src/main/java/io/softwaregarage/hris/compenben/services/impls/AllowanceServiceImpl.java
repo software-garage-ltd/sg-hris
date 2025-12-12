@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -27,11 +28,14 @@ public class AllowanceServiceImpl implements AllowanceService {
 
     private final AllowanceRepository allowanceRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final EmployeeProfileService employeeProfileService;
 
     public AllowanceServiceImpl(AllowanceRepository allowanceRepository,
-                                EmployeeProfileRepository employeeProfileRepository) {
+                                EmployeeProfileRepository employeeProfileRepository,
+                                EmployeeProfileService employeeProfileService) {
         this.allowanceRepository = allowanceRepository;
         this.employeeProfileRepository = employeeProfileRepository;
+        this.employeeProfileService = employeeProfileService;
     }
 
     @Override
@@ -52,6 +56,8 @@ public class AllowanceServiceImpl implements AllowanceService {
         allowance.setAllowanceCode(object.getAllowanceCode());
         allowance.setAllowanceType(object.getAllowanceType());
         allowance.setAllowanceAmount(object.getAllowanceAmount());
+        allowance.setTaxable(object.isTaxable());
+        allowance.setAllowanceCutOff(object.getAllowanceCutOff());
         allowance.setEmployee(employeeProfileRepository.getReferenceById(object.getEmployeeDTO().getId()));
         allowance.setUpdatedBy(object.getUpdatedBy());
         allowance.setDateAndTimeUpdated(LocalDateTime.now(ZoneId.of("Asia/Manila")));
@@ -65,17 +71,7 @@ public class AllowanceServiceImpl implements AllowanceService {
         logger.info("Retrieving employee's allowance record with UUID ".concat(id.toString()));
 
         Allowance allowance = allowanceRepository.getReferenceById(id);
-        AllowanceDTO allowanceDTO = new AllowanceDTO();
-
-        allowanceDTO.setId(allowance.getId());
-        allowanceDTO.setAllowanceCode(allowance.getAllowanceCode());
-        allowanceDTO.setAllowanceType(allowance.getAllowanceType());
-        allowanceDTO.setAllowanceAmount(allowance.getAllowanceAmount());
-        allowanceDTO.setEmployeeDTO(new EmployeeProfileServiceImpl(employeeProfileRepository).getById(allowance.getEmployee().getId()));
-        allowanceDTO.setCreatedBy(allowance.getCreatedBy());
-        allowanceDTO.setDateAndTimeCreated(allowance.getDateAndTimeCreated());
-        allowanceDTO.setUpdatedBy(allowance.getUpdatedBy());
-        allowanceDTO.setDateAndTimeUpdated(allowance.getDateAndTimeUpdated());
+        AllowanceDTO allowanceDTO = this.buildAllowanceDTO(allowance);
 
         logger.info("Employee's allowance record with id ".concat(id.toString()).concat(" is successfully retrieved."));
         return allowanceDTO;
@@ -106,19 +102,7 @@ public class AllowanceServiceImpl implements AllowanceService {
             EmployeeProfileService employeeProfileService = new EmployeeProfileServiceImpl(employeeProfileRepository);
 
             for (Allowance allowance : allowanceList) {
-                AllowanceDTO allowanceDTO = new AllowanceDTO();
-
-                allowanceDTO.setId(allowance.getId());
-                allowanceDTO.setAllowanceCode(allowance.getAllowanceCode());
-                allowanceDTO.setAllowanceType(allowance.getAllowanceType());
-                allowanceDTO.setAllowanceAmount(allowance.getAllowanceAmount());
-                allowanceDTO.setEmployeeDTO(employeeProfileService.getById(allowance.getEmployee().getId()));
-                allowanceDTO.setCreatedBy(allowance.getCreatedBy());
-                allowanceDTO.setDateAndTimeCreated(allowance.getDateAndTimeCreated());
-                allowanceDTO.setUpdatedBy(allowance.getUpdatedBy());
-                allowanceDTO.setDateAndTimeUpdated(allowance.getDateAndTimeUpdated());
-
-                allowanceDTOList.add(allowanceDTO);
+                allowanceDTOList.add(this.buildAllowanceDTO(allowance));
             }
 
             logger.info(String.valueOf(allowanceList.size()).concat(" record(s) found."));
@@ -137,22 +121,8 @@ public class AllowanceServiceImpl implements AllowanceService {
         if (!allowanceList.isEmpty()) {
             logger.info("Employee's allowance with parameter '%".concat(param).concat("%' has successfully retrieved."));
 
-            EmployeeProfileService employeeProfileService = new EmployeeProfileServiceImpl(employeeProfileRepository);
-
             for (Allowance allowance : allowanceList) {
-                AllowanceDTO allowanceDTO = new AllowanceDTO();
-
-                allowanceDTO.setId(allowance.getId());
-                allowanceDTO.setAllowanceCode(allowance.getAllowanceCode());
-                allowanceDTO.setAllowanceType(allowance.getAllowanceType());
-                allowanceDTO.setAllowanceAmount(allowance.getAllowanceAmount());
-                allowanceDTO.setEmployeeDTO(employeeProfileService.getById(allowance.getEmployee().getId()));
-                allowanceDTO.setCreatedBy(allowance.getCreatedBy());
-                allowanceDTO.setDateAndTimeCreated(allowance.getDateAndTimeCreated());
-                allowanceDTO.setUpdatedBy(allowance.getUpdatedBy());
-                allowanceDTO.setDateAndTimeUpdated(allowance.getDateAndTimeUpdated());
-
-                allowanceDTOList.add(allowanceDTO);
+                allowanceDTOList.add(this.buildAllowanceDTO(allowance));
             }
 
             logger.info(String.valueOf(allowanceList.size()).concat(" record(s) found."));
@@ -162,9 +132,48 @@ public class AllowanceServiceImpl implements AllowanceService {
     }
 
     @Override
-    public BigDecimal getSumOfAllowanceByEmployeeDTO(EmployeeProfileDTO employeeProfileDTO) {
-        Object sumOfAllowanceByEmployeeDTO = allowanceRepository.findSumOfAllowanceByEmployee(employeeProfileRepository.getReferenceById(employeeProfileDTO.getId()));
-        BigDecimal sumOfAllowance = new BigDecimal(sumOfAllowanceByEmployeeDTO != null ? sumOfAllowanceByEmployeeDTO.toString() : "0.00");
-        return sumOfAllowance;
+    public BigDecimal getSumOfTaxableAllowanceByEmployeeDTO(EmployeeProfileDTO employeeProfileDTO, int cutOffNumber) {
+        return allowanceRepository.findAllowanceByEmployee(
+                        employeeProfileRepository.getReferenceById(employeeProfileDTO.getId())
+                ).stream()
+                .filter(Allowance::isTaxable)
+                .filter(allowance -> allowance.getAllowanceCutOff() != null
+                        && allowance.getAllowanceCutOff().equals(cutOffNumber))
+                .map(Allowance::getAllowanceAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
+
+    @Override
+    public BigDecimal getSumOfNonTaxableAllowanceByEmployeeDTO(EmployeeProfileDTO employeeProfileDTO, int cutOffNumber) {
+        return allowanceRepository.findAllowanceByEmployee(
+                        employeeProfileRepository.getReferenceById(employeeProfileDTO.getId())
+                ).stream()
+                .filter(allowance -> !allowance.isTaxable())
+                .filter(allowance -> allowance.getAllowanceCutOff() != null
+                        && allowance.getAllowanceCutOff().equals(cutOffNumber))
+                .map(Allowance::getAllowanceAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+
+    private AllowanceDTO buildAllowanceDTO(Allowance allowance) {
+        AllowanceDTO allowanceDTO = new AllowanceDTO();
+
+        allowanceDTO.setId(allowance.getId());
+        allowanceDTO.setAllowanceCode(allowance.getAllowanceCode());
+        allowanceDTO.setAllowanceType(allowance.getAllowanceType());
+        allowanceDTO.setAllowanceAmount(allowance.getAllowanceAmount());
+        allowanceDTO.setEmployeeDTO(employeeProfileService.getById(allowance.getEmployee().getId()));
+        allowanceDTO.setTaxable(allowance.isTaxable());
+        allowanceDTO.setAllowanceCutOff(allowance.getAllowanceCutOff());
+        allowanceDTO.setCreatedBy(allowance.getCreatedBy());
+        allowanceDTO.setDateAndTimeCreated(allowance.getDateAndTimeCreated());
+        allowanceDTO.setUpdatedBy(allowance.getUpdatedBy());
+        allowanceDTO.setDateAndTimeUpdated(allowance.getDateAndTimeUpdated());
+
+        return allowanceDTO;
+    }
+
 }
