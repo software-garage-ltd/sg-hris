@@ -100,6 +100,9 @@ public class AllowanceListView extends VerticalLayout {
         allowanceDTOGrid.addColumn(AllowanceDTO::getAllowanceAmount)
                 .setHeader("Allowance Amount")
                 .setSortable(true);
+        allowanceDTOGrid.addColumn(allowanceDTO -> allowanceDTO.isTaxable() ? "Yes" : "No")
+                .setHeader("Is Taxable?")
+                .setSortable(true);
         allowanceDTOGrid.addComponentColumn(userDTO -> buildRowToolbar()).setHeader("Action");
         allowanceDTOGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
                 GridVariant.LUMO_COLUMN_BORDERS,

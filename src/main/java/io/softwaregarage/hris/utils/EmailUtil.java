@@ -131,8 +131,8 @@ public class EmailUtil {
                     amountFormat.format(payrollDTO.getOvertimePayAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${absentDeduction}",
                     amountFormat.format(payrollDTO.getAbsentDeductionAmount()));
-            employeePayslipTemplate = employeePayslipTemplate.replace("${allowancePay}",
-                    amountFormat.format(payrollDTO.getAllowancePayAmount()));
+            employeePayslipTemplate = employeePayslipTemplate.replace("${taxableAllowancePay}",
+                    amountFormat.format(payrollDTO.getTaxableAllowancePayAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${lateOrUndertimeDeduction}",
                     amountFormat.format(payrollDTO.getLateOrUndertimeDeductionAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${restDayPay}",
@@ -165,8 +165,11 @@ public class EmailUtil {
                     amountFormat.format(payrollDTO.getTotalDeductionAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${withholdingTax}",
                     amountFormat.format(payrollDTO.getWithholdingTaxDeductionAmount()));
+            employeePayslipTemplate = employeePayslipTemplate.replace("${nonTaxableAllowancePay}",
+                    amountFormat.format(payrollDTO.getNonTaxableAllowancePayAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${totalNetPay}",
                     amountFormat.format(payrollDTO.getTotalGrossPayAmount()
+                            .add(payrollDTO.getNonTaxableAllowancePayAmount())
                             .subtract(payrollDTO.getTotalDeductionAmount())
                             .subtract(payrollDTO.getWithholdingTaxDeductionAmount())));
 

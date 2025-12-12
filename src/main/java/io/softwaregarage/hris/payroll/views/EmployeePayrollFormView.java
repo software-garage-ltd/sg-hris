@@ -50,7 +50,8 @@ public class EmployeePayrollFormView extends VerticalLayout implements HasUrlPar
     // Component fields for pays.
     private BigDecimalField basicPayField,
             overtimePayField,
-            allowancePayField,
+            taxableAllowancePayField,
+            nonTaxableAllowancePayField,
             restDayPayField,
             nightDifferentialPayField,
             leavePayField,
@@ -151,9 +152,13 @@ public class EmployeePayrollFormView extends VerticalLayout implements HasUrlPar
         overtimePayField.setReadOnly(true);
         if (payrollDTO != null) overtimePayField.setValue(payrollDTO.getOvertimePayAmount());
 
-        allowancePayField = new BigDecimalField("Allowance Pay");
-        allowancePayField.setReadOnly(true);
-        if (payrollDTO != null) allowancePayField.setValue(payrollDTO.getAllowancePayAmount());
+        taxableAllowancePayField = new BigDecimalField("Taxable Allowance Pay");
+        taxableAllowancePayField.setReadOnly(true);
+        if (payrollDTO != null) taxableAllowancePayField.setValue(payrollDTO.getTaxableAllowancePayAmount());
+
+        nonTaxableAllowancePayField = new BigDecimalField("Non-Taxable Allowance Pay");
+        nonTaxableAllowancePayField.setReadOnly(true);
+        if (payrollDTO != null) nonTaxableAllowancePayField.setValue(payrollDTO.getNonTaxableAllowancePayAmount());
 
         restDayPayField = new BigDecimalField("Rest Day Pay");
         restDayPayField.setReadOnly(true);
@@ -305,7 +310,9 @@ public class EmployeePayrollFormView extends VerticalLayout implements HasUrlPar
 
         payFieldsFormLayout.add(basicPayField,
                 overtimePayField,
-                allowancePayField,
+                taxableAllowancePayField,
+                nonTaxableAllowancePayField,
+                nonTaxableAllowancePayField,
                 restDayPayField,
                 nightDifferentialPayField,
                 leavePayField,

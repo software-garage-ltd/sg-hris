@@ -34,6 +34,7 @@ import io.softwaregarage.hris.commons.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @RolesAllowed({"ROLE_ADMIN",
@@ -138,9 +139,17 @@ public class PayrollGeneratorView extends VerticalLayout {
                             cutOffFromDatePicker.getValue(),
                             cutOffToDatePicker.getValue());
 
-                    // Get the employee's total allowances;
-                    BigDecimal allowancePay = allowanceService
-                            .getSumOfAllowanceByEmployeeDTO(employeeProfileComboBox.getValue());
+                    // Get the employee's total taxable allowances;
+                    BigDecimal taxableAllowancePay = allowanceService
+                            .getSumOfTaxableAllowanceByEmployeeDTO(employeeProfileComboBox.getValue(),
+                                    this.resolveCutOffNumber(cutOffFromDatePicker.getValue(),
+                                                             cutOffToDatePicker.getValue()));
+
+                    // Get the employee's total non-taxable allowances;
+                    BigDecimal nonTaxableAllowancePay = allowanceService
+                            .getSumOfNonTaxableAllowanceByEmployeeDTO(employeeProfileComboBox.getValue(),
+                                    this.resolveCutOffNumber(cutOffFromDatePicker.getValue(),
+                                                             cutOffToDatePicker.getValue()));
 
                     // Get the computed amount for regular holidays.
                     BigDecimal regularHolidayAmount = payrollCalculatorService
@@ -178,7 +187,7 @@ public class PayrollGeneratorView extends VerticalLayout {
                                     cutOffFromDatePicker.getValue(),
                                     cutOffToDatePicker.getValue());
 
-                    BigDecimal totalGrossPayAmount = basicPay.add(allowancePay)
+                    BigDecimal totalGrossPayAmount = basicPay.add(taxableAllowancePay)
                             .add(overtimePay)
                             .add(restDayAmount)
                             .add(nightDifferentialAmount)
@@ -244,7 +253,8 @@ public class PayrollGeneratorView extends VerticalLayout {
                     payrollDTO.setCutOffToDate(cutOffToDatePicker.getValue());
                     payrollDTO.setBasicPayAmount(basicPay);
                     payrollDTO.setOvertimePayAmount(overtimePay);
-                    payrollDTO.setAllowancePayAmount(allowancePay);
+                    payrollDTO.setTaxableAllowancePayAmount(taxableAllowancePay);
+                    payrollDTO.setNonTaxableAllowancePayAmount(nonTaxableAllowancePay);
                     payrollDTO.setAbsentDeductionAmount(absentDeductionAmount);
                     payrollDTO.setLateOrUndertimeDeductionAmount(lateOrUndertimeAmount);
                     payrollDTO.setRestDayPayAmount(restDayAmount);
@@ -351,4 +361,15 @@ public class PayrollGeneratorView extends VerticalLayout {
 
         return timesheetDTOGrid;
     }
+
+    private int resolveCutOffNumber(LocalDate fromDate, LocalDate toDate) {
+        int dayOfMonth = fromDate.getDayOfMonth();
+
+        if (dayOfMonth <= 15) {
+            return 1; // First cut-off
+        } else {
+            return 2; // Second cut-off
+        }
+    }
+
 }

@@ -7,5 +7,6 @@ import io.softwaregarage.hris.commons.BaseService;
 import java.math.BigDecimal;
 
 public interface AllowanceService extends BaseService<AllowanceDTO> {
-    BigDecimal getSumOfAllowanceByEmployeeDTO(EmployeeProfileDTO employeeProfileDTO);
+    BigDecimal getSumOfTaxableAllowanceByEmployeeDTO(EmployeeProfileDTO employeeProfileDTO, int cutOffNumber);
+    BigDecimal getSumOfNonTaxableAllowanceByEmployeeDTO(EmployeeProfileDTO employeeProfileDTO, int cutOffNumber);
 }

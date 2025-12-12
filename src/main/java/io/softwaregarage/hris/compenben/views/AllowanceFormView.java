@@ -1,5 +1,6 @@
 package io.softwaregarage.hris.compenben.views;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -10,6 +11,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.*;
@@ -25,7 +27,9 @@ import io.softwaregarage.hris.commons.views.MainLayout;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @RolesAllowed({"ROLE_ADMIN",
@@ -44,6 +48,8 @@ public class AllowanceFormView extends VerticalLayout implements HasUrlParameter
     private ComboBox<EmployeeProfileDTO> employeeDTOComboBox;
     private ComboBox<String> allowanceTypeComboBox;
     private BigDecimalField allowanceAmountField;
+    private ToggleButton allowanceTaxableToggleButton;
+    private RadioButtonGroup<Integer> allowanceCutOffGroup;
 
     public AllowanceFormView(AllowanceService allowanceService,
                              EmployeeProfileService employeeProfileService) {
@@ -104,6 +110,28 @@ public class AllowanceFormView extends VerticalLayout implements HasUrlParameter
         allowanceAmountField.setPrefixComponent(phpPrefix);
         if (allowanceDTO != null) allowanceAmountField.setValue(allowanceDTO.getAllowanceAmount());
 
+        allowanceTaxableToggleButton = new ToggleButton("Is Taxable?");
+        allowanceTaxableToggleButton.setRequiredIndicatorVisible(true);
+        if (allowanceDTO != null) allowanceTaxableToggleButton.setValue(allowanceDTO.isTaxable());
+
+        // Add a set of values for the radio button cut-offs.
+        Set<Integer> cutOffValues =  new HashSet<>();
+        cutOffValues.add(1);
+        cutOffValues.add(2);
+
+        allowanceCutOffGroup = new RadioButtonGroup<>("Allowance Cut-Off");
+        allowanceCutOffGroup.setRequired(true);
+        allowanceCutOffGroup.setRequiredIndicatorVisible(true);
+        allowanceCutOffGroup.setItems(cutOffValues);
+        allowanceCutOffGroup.setItemLabelGenerator(integer -> {
+            switch (integer) {
+                case 1: return "1st Cut-Off";
+                case 2: return "2nd Cut-Off";
+                default: return "Unknown";
+            }
+        });
+        if (allowanceDTO != null) allowanceCutOffGroup.setValue(allowanceDTO.getAllowanceCutOff());
+
         Button saveButton = new Button("Save");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(buttonClickEvent -> {
@@ -124,6 +152,8 @@ public class AllowanceFormView extends VerticalLayout implements HasUrlParameter
         allowanceDTOFormLayout.add(employeeDTOComboBox,
                 allowanceTypeComboBox,
                 allowanceAmountField,
+                allowanceTaxableToggleButton,
+                allowanceCutOffGroup,
                 buttonLayout);
         allowanceDTOFormLayout.setColspan(employeeDTOComboBox, 2);
         allowanceDTOFormLayout.setColspan(buttonLayout, 2);
@@ -145,6 +175,8 @@ public class AllowanceFormView extends VerticalLayout implements HasUrlParameter
                                                                   employeeDTOComboBox.getValue().getEmployeeNumber()));
         allowanceDTO.setAllowanceType(allowanceTypeComboBox.getValue());
         allowanceDTO.setAllowanceAmount(allowanceAmountField.getValue());
+        allowanceDTO.setTaxable(allowanceTaxableToggleButton.getValue());
+        allowanceDTO.setAllowanceCutOff(allowanceCutOffGroup.getValue());
         allowanceDTO.setUpdatedBy(loggedInUser);
 
         allowanceService.saveOrUpdate(allowanceDTO);
