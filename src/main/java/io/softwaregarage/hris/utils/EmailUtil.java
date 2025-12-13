@@ -150,7 +150,7 @@ public class EmailUtil {
             employeePayslipTemplate = employeePayslipTemplate.replace("${regularHolidayPay}",
                     amountFormat.format(payrollDTO.getRegularHolidayPayAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${totalLoanDeduction}",
-                    amountFormat.format(payrollDTO.getTotalDeductionAmount()));
+                    amountFormat.format(payrollDTO.getTotalLoanDeductionAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${specialHolidayPay}",
                     amountFormat.format(payrollDTO.getSpecialHolidayPayAmount()));
             employeePayslipTemplate = employeePayslipTemplate.replace("${otherDeduction}",
